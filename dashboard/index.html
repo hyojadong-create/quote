@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>America Tint – Shop Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="dash-header">
+  <div class="hdr-left">
+    <div class="logo">AMERICA <span>TINT</span></div>
+    <div class="shop-tag" id="shopTag">—</div>
+  </div>
+  <div class="hdr-center">
+    <div class="date-big" id="dateBig"></div>
+    <div class="clock" id="clock"></div>
+  </div>
+  <div class="hdr-right">
+    <div class="stats-block">
+      <div class="stats-num" id="statsCount">0</div>
+      <div class="stats-lbl">TODAY</div>
+    </div>
+    <div class="stats-block">
+      <div class="stats-num" id="statsTotal">$0</div>
+      <div class="stats-lbl">TOTAL</div>
+    </div>
+    <button class="refresh-btn" id="refreshBtn" title="Refresh">⟳</button>
+  </div>
+</header>
+
+<main class="kanban">
+
+  <section class="col col-waiting">
+    <header class="col-head">
+      <span class="col-title">WAITING</span>
+      <span class="col-sub">대기</span>
+      <span class="col-count" id="countWaiting">0</span>
+    </header>
+    <div class="card-list" id="listWaiting"></div>
+  </section>
+
+  <section class="col col-progress">
+    <header class="col-head">
+      <span class="col-title">IN PROGRESS</span>
+      <span class="col-sub">진행중</span>
+      <span class="col-count" id="countProgress">0</span>
+    </header>
+    <div class="card-list" id="listProgress"></div>
+  </section>
+
+  <section class="col col-done">
+    <header class="col-head">
+      <span class="col-title">DONE</span>
+      <span class="col-sub">완료</span>
+      <span class="col-count" id="countDone">0</span>
+    </header>
+    <div class="card-list" id="listDone"></div>
+  </section>
+
+</main>
+
+<div class="footer">
+  <span id="lastUpdate">—</span>
+  <span class="footer-sep">•</span>
+  <span>탭하면 다음 상태로 이동 · 30초마다 자동 새로고침</span>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>
