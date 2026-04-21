@@ -1,1 +1,2487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>America Tint – Quote</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black:#0a0a08; --dark:#111110; --card:#1a1a18; --border:#2e2e2a;
+  --gold:#c8a535; --gold-lt:#e0bb55; --white:#f0ede6;
+  --gray:#7a7870; --gray-lt:#a8a49a; --green:#3a7a3a;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+input,textarea,select{-webkit-tap-highlight-color:rgba(0,0,0,0);}
+html,body{background:var(--black);color:var(--white);font-family:'Barlow',sans-serif;overflow-x:hidden;}
+
+/* HEADER */
+.header{
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 4%;height:60px;
+  background:rgba(10,10,8,0.97);border-bottom:1px solid var(--border);
+}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;}
+.logo span{color:var(--gold);}
+.step-indicator{
+  font-family:'Barlow Condensed',sans-serif;font-size:12px;
+  letter-spacing:2px;text-transform:uppercase;color:var(--gray);
+}
+
+/* PROGRESS */
+.prog{display:flex;border-bottom:1px solid var(--border);}
+.prog-item{
+  flex:1;padding:10px 4px;text-align:center;
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;
+  letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);
+  border-right:1px solid var(--border);
+}
+.prog-item:last-child{border-right:none;}
+.prog-item.active{background:rgba(200,165,53,0.08);color:var(--gold);}
+.prog-item.done{color:#5aaa5a;}
+
+/* MAIN */
+.main{max-width:960px;margin:0 auto;padding:24px 4% 80px;}
+.step-panel{display:none;}
+.step-panel.active{display:block;animation:fi .2s ease;}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* SECTION LABEL */
+.sec-label{
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:3px;text-transform:uppercase;color:var(--gold);
+  display:flex;align-items:center;gap:10px;margin-bottom:12px;
+}
+.sec-label::after{content:'';width:24px;height:1px;background:var(--gold);}
+.sec-title{
+  font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;
+  color:var(--white);margin-bottom:20px;
+}
+
+/* VEHICLE GRID */
+.veh-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px;}
+.veh-card{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:16px 10px;text-align:center;cursor:pointer;
+  transition:border-color .2s,background .2s;user-select:none;
+}
+.veh-card:active{transform:scale(0.97);}
+.veh-card.selected{border-color:var(--gold);background:rgba(200,165,53,0.08);}
+.veh-icon{font-size:28px;margin-bottom:8px;}
+.veh-name{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;color:var(--white);}
+.veh-sub{font-size:11px;color:var(--gray);margin-top:3px;}
+
+/* TESLA MODEL ROW */
+.tesla-models{
+  display:none;grid-template-columns:repeat(5,1fr);gap:8px;
+  margin-bottom:10px;
+}
+.tesla-models.show{display:grid;}
+.tm-card{
+  background:var(--card);border:1px solid var(--border);border-radius:8px;
+  padding:12px 6px;text-align:center;cursor:pointer;
+  transition:border-color .2s;
+}
+.tm-card.selected{border-color:var(--gold);background:rgba(200,165,53,0.08);}
+.tm-num{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--gold);line-height:1;}
+.tm-name{font-size:11px;color:var(--gray-lt);margin-top:4px;}
+
+/* FILM ROW */
+.film-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:20px;}
+.film-card{
+  background:var(--card);border:1px solid var(--border);border-radius:8px;
+  padding:14px 10px;text-align:center;cursor:pointer;
+  transition:border-color .2s,background .2s;user-select:none;
+  position:relative;
+}
+.film-card.selected{border-color:var(--gold);background:rgba(200,165,53,0.08);}
+.film-card.disabled{opacity:0.3;pointer-events:none;}
+.film-name{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;color:var(--white);}
+.film-sub{font-size:10px;color:var(--gold);letter-spacing:1px;margin-top:3px;}
+.film-warranty{font-size:10px;color:var(--gray);margin-top:6px;}
+
+/* ── STEP 2: CAR DIAGRAM ── */
+.car-svg-container{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:16px;display:flex;align-items:center;justify-content:center;
+  width:100%;
+}
+.car-svg-container svg{width:100%;height:auto;}
+
+/* highlight zones */
+.zone{cursor:pointer;transition:opacity .2s;}
+.zone:hover{opacity:0.8;}
+.zone.active-zone .zone-fill{fill:rgba(200,165,53,0.5)!important;stroke:#c8a535!important;stroke-width:2;}
+.zone-fill{transition:fill .2s,stroke .2s;}
+
+/* AREA LIST */
+.area-list{display:flex;flex-direction:column;gap:8px;}
+.area-row{
+  background:var(--card);border:1px solid var(--border);border-radius:8px;
+  padding:14px 18px;display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;transition:border-color .2s;user-select:none;
+}
+.area-row:active:not(.disabled){transform:scale(0.99);}
+.area-row.selected{border-color:var(--gold);background:rgba(200,165,53,0.06);}
+.area-row.disabled{opacity:0.35;cursor:not-allowed;}
+.area-left{display:flex;align-items:center;gap:14px;}
+.area-check{
+  width:22px;height:22px;border-radius:5px;flex-shrink:0;
+  border:1px solid var(--border);background:var(--dark);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;color:var(--gold);
+}
+.area-row.selected .area-check{background:var(--gold);border-color:var(--gold);color:var(--black);}
+.area-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:0.5px;color:var(--white);}
+.area-note{font-size:11px;color:var(--gray);margin-top:2px;}
+.area-price{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--gold);}
+.area-price.na{font-family:'Barlow',sans-serif;font-size:13px;color:var(--gray);}
+
+/* QTY PICKER */
+.qty-wrap{display:flex;align-items:center;gap:8px;}
+.qty-btn{
+  width:30px;height:30px;background:var(--border);color:var(--white);
+  border:none;border-radius:5px;font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.qty-num{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);min-width:18px;text-align:center;}
+
+/* TOTAL BAR */
+.total-bar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:20px;background:rgba(200,165,53,0.08);
+  border:1px solid rgba(200,165,53,0.25);border-radius:8px;
+  margin-top:16px;
+}
+.total-lbl{font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--gray-lt);}
+.total-amt{font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--gold);line-height:1;}
+
+/* CONFIRM / BUTTONS */
+.btn-confirm{
+  width:100%;padding:18px;margin-top:12px;
+  font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  background:var(--green);color:var(--white);border:none;border-radius:8px;cursor:pointer;
+}
+.btn-back{
+  padding:14px 24px;
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  background:transparent;color:var(--gray);border:1px solid var(--border);border-radius:6px;cursor:pointer;
+}
+.btn-next{
+  flex:1;padding:18px;
+  font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  background:var(--gold);color:var(--black);border:none;border-radius:8px;cursor:pointer;
+}
+.btn-next:disabled{background:var(--border);color:var(--gray);cursor:not-allowed;}
+.nav-row{display:flex;gap:10px;margin-top:20px;}
+.btn-reset{
+  width:100%;padding:12px;margin-top:8px;
+  font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;
+  background:transparent;color:var(--gray);border:1px solid var(--border);border-radius:6px;cursor:pointer;
+}
+.btn-new{
+  display:inline-block;margin-top:16px;padding:16px 48px;
+  font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  background:var(--gold);color:var(--black);border:none;border-radius:6px;cursor:pointer;
+}
+
+/* CONFIRMED */
+.confirmed-wrap{text-align:center;padding:40px 20px;}
+.conf-icon{width:72px;height:72px;border-radius:50%;background:rgba(58,122,58,0.2);border:2px solid #5aaa5a;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:32px;}
+.conf-title{font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:2px;margin-bottom:8px;}
+.conf-sub{font-size:14px;color:var(--gray-lt);margin-bottom:28px;}
+.quote-card{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px;}
+.q-row{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid var(--border);font-size:14px;}
+.q-row:last-child{border-bottom:none;}
+.ql{color:var(--gray);}
+.qv{color:var(--white);font-weight:500;}
+.qp{color:var(--gold);font-weight:600;}
+
+/* INFO FORM */
+.info-form{display:flex;flex-direction:column;gap:14px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-label{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);}
+.req{color:#e05050;}
+.form-input{
+  background:var(--card);border:1px solid var(--border);border-radius:8px;
+  padding:13px 16px;font-size:16px;color:var(--white);font-family:'Barlow',sans-serif;
+  outline:none;transition:border-color .2s;width:100%;
+  -webkit-appearance:none;
+  -webkit-user-select:text;
+  user-select:text;
+  cursor:text;
+}
+.form-input:focus{border-color:var(--gold);}
+input.form-input,select.form-input{min-height:48px;touch-action:manipulation;}
+.form-input::placeholder{color:var(--gray);}
+.form-section-title{
+  font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;
+  color:var(--white);border-bottom:1px solid var(--border);padding-bottom:8px;margin-top:4px;
+}
+@media(max-width:480px){.form-row{grid-template-columns:1fr;}}
+
+/* SELECT */
+select.form-input{
+  cursor:pointer;
+  color:#f0ede6;
+  font-size:16px;
+  background-color:#1a1a18;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%237a7870' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 14px center;
+  padding-right:36px;
+  -webkit-appearance:none;
+  appearance:none;
+  min-height:48px;
+  border:1px solid #2e2e2a;
+  border-radius:8px;
+  padding-left:16px;
+  width:100%;
+  display:block;
+}
+select.form-input:focus{border-color:#c8a535;outline:none;}
+select.form-input option{background:#1a1a18;color:#f0ede6;}
+
+/* DROPDOWN BTN */
+.dropdown-btn{
+  display:flex;align-items:center;justify-content:space-between;
+  width:100%;text-align:left;cursor:pointer;
+  background:var(--card);border:1px solid var(--border);
+  -webkit-appearance:none;appearance:none;
+}
+.dropdown-btn:active{border-color:var(--gold);}
+
+/* VEHICLE BUTTONS */
+.vbtn{
+  background:var(--card);border:1px solid var(--border);border-radius:8px;
+  padding:10px 6px;text-align:center;cursor:pointer;
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;
+  color:var(--gray-lt);width:100%;min-height:44px;
+  -webkit-appearance:none;appearance:none;
+}
+.vbtn.selected{background:rgba(200,165,53,0.15);border-color:var(--gold);color:var(--gold);}
+.vbtn:active{opacity:0.7;}
+.make-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px;}
+.make-btn{
+  background:var(--card);border:1px solid var(--border);border-radius:8px;
+  padding:10px 6px;text-align:center;cursor:pointer;
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;
+  letter-spacing:0.5px;color:var(--gray-lt);transition:all .15s;
+  -webkit-tap-highlight-color:transparent;user-select:none;
+  width:100%;-webkit-appearance:none;appearance:none;
+}
+.make-btn:active{transform:scale(0.96);}
+.make-btn.selected{background:rgba(200,165,53,0.15);border-color:var(--gold);color:var(--gold);}
+@media(max-width:480px){.make-grid{grid-template-columns:repeat(3,1fr);}}
+.info-banner{
+  font-size:12px;color:var(--gray-lt);
+  background:rgba(200,165,53,0.06);border:1px solid rgba(200,165,53,0.15);
+  border-radius:6px;padding:10px 14px;margin-bottom:12px;
+}
+
+@media(max-width:700px){
+  .veh-grid{grid-template-columns:repeat(2,1fr);}
+  .film-row{grid-template-columns:repeat(3,1fr);}
+  .tesla-models{grid-template-columns:repeat(3,1fr);}
+  .step2-grid{grid-template-columns:1fr;}
+}
+@media(max-width:480px){
+  .film-row{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">AMERICA <span>TINT</span></div>
+  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
+    <div class="step-indicator" id="stepInd">Customer Quote</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--gold);letter-spacing:1px;" id="invoiceNum"></div>
+  </div>
+</div>
+
+<div class="prog" id="prog"></div>
+
+<div class="main">
+
+  <!-- ══ STEP 0: CUSTOMER INFO ══ -->
+  <div id="step0" class="step-panel active">
+    <div class="sec-label">Step 1 of 3</div>
+    <div class="sec-title">CUSTOMER INFO</div>
+
+    <div class="info-form">
+
+      <!-- 지점 선택 -->
+      <div class="form-group">
+        <label class="form-label">Location <span class="req">*</span></label>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+          <label id="loc_wc" onclick="selLocation('West Covina')" style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 6px;text-align:center;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;color:var(--gray-lt);width:100%;min-height:48px;display:flex;align-items:center;justify-content:center;touch-action:manipulation;">W. Covina</label>
+          <label id="loc_ch" onclick="selLocation('Chino')" style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 6px;text-align:center;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;color:var(--gray-lt);width:100%;min-height:48px;display:flex;align-items:center;justify-content:center;touch-action:manipulation;">Chino</label>
+          <label id="loc_ir" onclick="selLocation('Irvine')" style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 6px;text-align:center;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;color:var(--gray-lt);width:100%;min-height:48px;display:flex;align-items:center;justify-content:center;touch-action:manipulation;">Irvine</label>
+          <label id="loc_fl" onclick="selLocation('Fullerton')" style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 6px;text-align:center;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;color:var(--gray-lt);width:100%;min-height:48px;display:flex;align-items:center;justify-content:center;touch-action:manipulation;">Fullerton</label>
+        </div>
+        <input type="hidden" id="cLocation">
+      </div>
+
+      <!-- 이름 / 전화번호 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Name <span class="req">*</span></label>
+          <input class="form-input" type="text" id="cName" placeholder="Full Name" oninput="checkForm()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone <span class="req">*</span></label>
+          <input class="form-input" type="tel" id="cPhone" placeholder="(000) 000-0000" oninput="checkForm()">
+        </div>
+      </div>
+
+      <!-- 이메일 (옵션) -->
+      <div class="form-group">
+        <label class="form-label">Email <span style="color:var(--gray);font-size:11px;">(optional)</span></label>
+        <input class="form-input" type="email" id="cEmail" placeholder="email@example.com">
+      </div>
+
+      <!-- 날짜 / 시간 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Date <span class="req">*</span></label>
+          <input class="form-input" type="text" id="cDate" readonly style="color:var(--gray-lt);">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Time</label>
+          <input class="form-input" type="text" id="cTime" readonly style="color:var(--gray-lt);">
+        </div>
+      </div>
+
+      <!-- 차량 정보 -->
+      <div class="form-section-title">Vehicle Information</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Year <span class="req">*</span></label>
+          <select class="form-input" id="cYear" onchange="checkForm()" style="font-size:16px;min-height:48px;">
+            <option value="">Year</option>
+            <option value="2027">2027</option>
+            <option value="2026" selected>2026</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <option value="2022">2022</option>
+            <option value="2021">2021</option>
+            <option value="2020">2020</option>
+            <option value="2019">2019</option>
+            <option value="2018">2018</option>
+            <option value="2017">2017</option>
+            <option value="2016">2016</option>
+            <option value="2015">2015</option>
+            <option value="2014">2014</option>
+            <option value="2013">2013</option>
+            <option value="2012">2012</option>
+            <option value="2011">2011</option>
+            <option value="2010">2010</option>
+            <option value="2009">2009</option>
+            <option value="2008">2008</option>
+            <option value="2007">2007</option>
+            <option value="2006">2006</option>
+            <option value="2005">2005</option>
+            <option value="2004">2004</option>
+            <option value="2003">2003</option>
+            <option value="2002">2002</option>
+            <option value="2001">2001</option>
+            <option value="2000">2000</option>
+            <option value="1999">1999</option>
+            <option value="1998">1998</option>
+            <option value="1997">1997</option>
+            <option value="1996">1996</option>
+            <option value="1995">1995</option>
+            <option value="1994">1994</option>
+            <option value="1993">1993</option>
+            <option value="1992">1992</option>
+            <option value="1991">1991</option>
+            <option value="1990">1990</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Make <span class="req">*</span></label>
+          <button type="button" id="makeDisplay" onclick="toggleMakeGrid()" ontouchend="toggleMakeGrid()" style="width:100%;min-height:48px;cursor:pointer;font-size:16px;color:var(--gray);background:var(--card);border:1px solid var(--border);border-radius:8px;padding:13px 16px;text-align:left;-webkit-appearance:none;appearance:none;touch-action:manipulation;">Select Make ▼</button>
+          <input type="hidden" id="cMake">
+          <div id="makeGrid" style="display:none;margin-top:8px;">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+<button type="button" class="vbtn" onclick="selMakeBtn('Acura')" ontouchend="selMakeBtn('Acura')">Acura</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Audi')" ontouchend="selMakeBtn('Audi')">Audi</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('BMW')" ontouchend="selMakeBtn('BMW')">BMW</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Buick')" ontouchend="selMakeBtn('Buick')">Buick</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Cadillac')" ontouchend="selMakeBtn('Cadillac')">Cadillac</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Chevrolet')" ontouchend="selMakeBtn('Chevrolet')">Chevrolet</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Chrysler')" ontouchend="selMakeBtn('Chrysler')">Chrysler</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Dodge')" ontouchend="selMakeBtn('Dodge')">Dodge</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Ford')" ontouchend="selMakeBtn('Ford')">Ford</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Genesis')" ontouchend="selMakeBtn('Genesis')">Genesis</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('GMC')" ontouchend="selMakeBtn('GMC')">GMC</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Honda')" ontouchend="selMakeBtn('Honda')">Honda</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Hyundai')" ontouchend="selMakeBtn('Hyundai')">Hyundai</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Infiniti')" ontouchend="selMakeBtn('Infiniti')">Infiniti</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Jeep')" ontouchend="selMakeBtn('Jeep')">Jeep</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Kia')" ontouchend="selMakeBtn('Kia')">Kia</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Lexus')" ontouchend="selMakeBtn('Lexus')">Lexus</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Lincoln')" ontouchend="selMakeBtn('Lincoln')">Lincoln</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Mazda')" ontouchend="selMakeBtn('Mazda')">Mazda</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Mercedes')" ontouchend="selMakeBtn('Mercedes')">Mercedes</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Mitsubishi')" ontouchend="selMakeBtn('Mitsubishi')">Mitsubishi</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Nissan')" ontouchend="selMakeBtn('Nissan')">Nissan</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Porsche')" ontouchend="selMakeBtn('Porsche')">Porsche</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('RAM')" ontouchend="selMakeBtn('RAM')">RAM</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Rivian')" ontouchend="selMakeBtn('Rivian')">Rivian</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Subaru')" ontouchend="selMakeBtn('Subaru')">Subaru</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Tesla')" ontouchend="selMakeBtn('Tesla')">Tesla</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Toyota')" ontouchend="selMakeBtn('Toyota')">Toyota</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Volkswagen')" ontouchend="selMakeBtn('Volkswagen')">Volkswagen</button>
+<button type="button" class="vbtn" onclick="selMakeBtn('Volvo')" ontouchend="selMakeBtn('Volvo')">Volvo</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Model <span class="req">*</span></label>
+          <button type="button" id="modelDisplay" onclick="toggleModelGrid()" ontouchend="toggleModelGrid()" style="width:100%;min-height:48px;cursor:pointer;font-size:16px;color:var(--gray);background:var(--card);border:1px solid var(--border);border-radius:8px;padding:13px 16px;text-align:left;-webkit-appearance:none;appearance:none;touch-action:manipulation;">Select Make First</button>
+          <input type="hidden" id="cModel">
+          <div id="modelGrid" style="display:none;margin-top:8px;">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;" id="modelBtns">
+<div id="mb_Acura" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('ILX')" ontouchend="selModelBtn('ILX')">ILX</button>
+<button type="button" class="vbtn" onclick="selModelBtn('TLX')" ontouchend="selModelBtn('TLX')">TLX</button>
+<button type="button" class="vbtn" onclick="selModelBtn('RLX')" ontouchend="selModelBtn('RLX')">RLX</button>
+<button type="button" class="vbtn" onclick="selModelBtn('MDX')" ontouchend="selModelBtn('MDX')">MDX</button>
+<button type="button" class="vbtn" onclick="selModelBtn('RDX')" ontouchend="selModelBtn('RDX')">RDX</button>
+<button type="button" class="vbtn" onclick="selModelBtn('ZDX')" ontouchend="selModelBtn('ZDX')">ZDX</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Integra')" ontouchend="selModelBtn('Integra')">Integra</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Audi" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('A3')" ontouchend="selModelBtn('A3')">A3</button>
+<button type="button" class="vbtn" onclick="selModelBtn('A4')" ontouchend="selModelBtn('A4')">A4</button>
+<button type="button" class="vbtn" onclick="selModelBtn('A5')" ontouchend="selModelBtn('A5')">A5</button>
+<button type="button" class="vbtn" onclick="selModelBtn('A6')" ontouchend="selModelBtn('A6')">A6</button>
+<button type="button" class="vbtn" onclick="selModelBtn('A7')" ontouchend="selModelBtn('A7')">A7</button>
+<button type="button" class="vbtn" onclick="selModelBtn('A8')" ontouchend="selModelBtn('A8')">A8</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Q3')" ontouchend="selModelBtn('Q3')">Q3</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Q4')" ontouchend="selModelBtn('Q4')">Q4</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Q5')" ontouchend="selModelBtn('Q5')">Q5</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Q7')" ontouchend="selModelBtn('Q7')">Q7</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Q8')" ontouchend="selModelBtn('Q8')">Q8</button>
+<button type="button" class="vbtn" onclick="selModelBtn('e-tron')" ontouchend="selModelBtn('e-tron')">e-tron</button>
+<button type="button" class="vbtn" onclick="selModelBtn('TT')" ontouchend="selModelBtn('TT')">TT</button>
+<button type="button" class="vbtn" onclick="selModelBtn('R8')" ontouchend="selModelBtn('R8')">R8</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_BMW" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('2 Series')" ontouchend="selModelBtn('2 Series')">2 Series</button>
+<button type="button" class="vbtn" onclick="selModelBtn('3 Series')" ontouchend="selModelBtn('3 Series')">3 Series</button>
+<button type="button" class="vbtn" onclick="selModelBtn('4 Series')" ontouchend="selModelBtn('4 Series')">4 Series</button>
+<button type="button" class="vbtn" onclick="selModelBtn('5 Series')" ontouchend="selModelBtn('5 Series')">5 Series</button>
+<button type="button" class="vbtn" onclick="selModelBtn('7 Series')" ontouchend="selModelBtn('7 Series')">7 Series</button>
+<button type="button" class="vbtn" onclick="selModelBtn('8 Series')" ontouchend="selModelBtn('8 Series')">8 Series</button>
+<button type="button" class="vbtn" onclick="selModelBtn('X1')" ontouchend="selModelBtn('X1')">X1</button>
+<button type="button" class="vbtn" onclick="selModelBtn('X2')" ontouchend="selModelBtn('X2')">X2</button>
+<button type="button" class="vbtn" onclick="selModelBtn('X3')" ontouchend="selModelBtn('X3')">X3</button>
+<button type="button" class="vbtn" onclick="selModelBtn('X4')" ontouchend="selModelBtn('X4')">X4</button>
+<button type="button" class="vbtn" onclick="selModelBtn('X5')" ontouchend="selModelBtn('X5')">X5</button>
+<button type="button" class="vbtn" onclick="selModelBtn('X6')" ontouchend="selModelBtn('X6')">X6</button>
+<button type="button" class="vbtn" onclick="selModelBtn('X7')" ontouchend="selModelBtn('X7')">X7</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Z4')" ontouchend="selModelBtn('Z4')">Z4</button>
+<button type="button" class="vbtn" onclick="selModelBtn('i3')" ontouchend="selModelBtn('i3')">i3</button>
+<button type="button" class="vbtn" onclick="selModelBtn('i4')" ontouchend="selModelBtn('i4')">i4</button>
+<button type="button" class="vbtn" onclick="selModelBtn('i7')" ontouchend="selModelBtn('i7')">i7</button>
+<button type="button" class="vbtn" onclick="selModelBtn('iX')" ontouchend="selModelBtn('iX')">iX</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Buick" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('Encore')" ontouchend="selModelBtn('Encore')">Encore</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Encore GX')" ontouchend="selModelBtn('Encore GX')">Encore GX</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Envision')" ontouchend="selModelBtn('Envision')">Envision</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Enclave')" ontouchend="selModelBtn('Enclave')">Enclave</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Cadillac" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('CT4')" ontouchend="selModelBtn('CT4')">CT4</button>
+<button type="button" class="vbtn" onclick="selModelBtn('CT5')" ontouchend="selModelBtn('CT5')">CT5</button>
+<button type="button" class="vbtn" onclick="selModelBtn('XT4')" ontouchend="selModelBtn('XT4')">XT4</button>
+<button type="button" class="vbtn" onclick="selModelBtn('XT5')" ontouchend="selModelBtn('XT5')">XT5</button>
+<button type="button" class="vbtn" onclick="selModelBtn('XT6')" ontouchend="selModelBtn('XT6')">XT6</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Escalade')" ontouchend="selModelBtn('Escalade')">Escalade</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Lyriq')" ontouchend="selModelBtn('Lyriq')">Lyriq</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Chevrolet" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('Spark')" ontouchend="selModelBtn('Spark')">Spark</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Trax')" ontouchend="selModelBtn('Trax')">Trax</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Trailblazer')" ontouchend="selModelBtn('Trailblazer')">Trailblazer</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Equinox')" ontouchend="selModelBtn('Equinox')">Equinox</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Blazer')" ontouchend="selModelBtn('Blazer')">Blazer</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Traverse')" ontouchend="selModelBtn('Traverse')">Traverse</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Tahoe')" ontouchend="selModelBtn('Tahoe')">Tahoe</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Suburban')" ontouchend="selModelBtn('Suburban')">Suburban</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Colorado')" ontouchend="selModelBtn('Colorado')">Colorado</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Silverado 1500')" ontouchend="selModelBtn('Silverado 1500')">Silverado 1500</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Silverado 2500')" ontouchend="selModelBtn('Silverado 2500')">Silverado 2500</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Corvette')" ontouchend="selModelBtn('Corvette')">Corvette</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Camaro')" ontouchend="selModelBtn('Camaro')">Camaro</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Malibu')" ontouchend="selModelBtn('Malibu')">Malibu</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Chrysler" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('300')" ontouchend="selModelBtn('300')">300</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Pacifica')" ontouchend="selModelBtn('Pacifica')">Pacifica</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Voyager')" ontouchend="selModelBtn('Voyager')">Voyager</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Dodge" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('Challenger')" ontouchend="selModelBtn('Challenger')">Challenger</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Charger')" ontouchend="selModelBtn('Charger')">Charger</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Durango')" ontouchend="selModelBtn('Durango')">Durango</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Hornet')" ontouchend="selModelBtn('Hornet')">Hornet</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Ford" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('Mustang')" ontouchend="selModelBtn('Mustang')">Mustang</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Mustang Mach-E')" ontouchend="selModelBtn('Mustang Mach-E')">Mustang Mach-E</button>
+<button type="button" class="vbtn" onclick="selModelBtn('F-150')" ontouchend="selModelBtn('F-150')">F-150</button>
+<button type="button" class="vbtn" onclick="selModelBtn('F-250')" ontouchend="selModelBtn('F-250')">F-250</button>
+<button type="button" class="vbtn" onclick="selModelBtn('F-350')" ontouchend="selModelBtn('F-350')">F-350</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Bronco')" ontouchend="selModelBtn('Bronco')">Bronco</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Bronco Sport')" ontouchend="selModelBtn('Bronco Sport')">Bronco Sport</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Explorer')" ontouchend="selModelBtn('Explorer')">Explorer</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Expedition')" ontouchend="selModelBtn('Expedition')">Expedition</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Edge')" ontouchend="selModelBtn('Edge')">Edge</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Escape')" ontouchend="selModelBtn('Escape')">Escape</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Maverick')" ontouchend="selModelBtn('Maverick')">Maverick</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Ranger')" ontouchend="selModelBtn('Ranger')">Ranger</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Genesis" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('G70')" ontouchend="selModelBtn('G70')">G70</button>
+<button type="button" class="vbtn" onclick="selModelBtn('G80')" ontouchend="selModelBtn('G80')">G80</button>
+<button type="button" class="vbtn" onclick="selModelBtn('G90')" ontouchend="selModelBtn('G90')">G90</button>
+<button type="button" class="vbtn" onclick="selModelBtn('GV70')" ontouchend="selModelBtn('GV70')">GV70</button>
+<button type="button" class="vbtn" onclick="selModelBtn('GV80')" ontouchend="selModelBtn('GV80')">GV80</button>
+<button type="button" class="vbtn" onclick="selModelBtn('GV60')" ontouchend="selModelBtn('GV60')">GV60</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_GMC" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('Terrain')" ontouchend="selModelBtn('Terrain')">Terrain</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Acadia')" ontouchend="selModelBtn('Acadia')">Acadia</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Yukon')" ontouchend="selModelBtn('Yukon')">Yukon</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Yukon XL')" ontouchend="selModelBtn('Yukon XL')">Yukon XL</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Canyon')" ontouchend="selModelBtn('Canyon')">Canyon</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Sierra 1500')" ontouchend="selModelBtn('Sierra 1500')">Sierra 1500</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Sierra 2500')" ontouchend="selModelBtn('Sierra 2500')">Sierra 2500</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Hummer EV')" ontouchend="selModelBtn('Hummer EV')">Hummer EV</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Honda" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('Civic')" ontouchend="selModelBtn('Civic')">Civic</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Accord')" ontouchend="selModelBtn('Accord')">Accord</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Insight')" ontouchend="selModelBtn('Insight')">Insight</button>
+<button type="button" class="vbtn" onclick="selModelBtn('HR-V')" ontouchend="selModelBtn('HR-V')">HR-V</button>
+<button type="button" class="vbtn" onclick="selModelBtn('CR-V')" ontouchend="selModelBtn('CR-V')">CR-V</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Pilot')" ontouchend="selModelBtn('Pilot')">Pilot</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Passport')" ontouchend="selModelBtn('Passport')">Passport</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Ridgeline')" ontouchend="selModelBtn('Ridgeline')">Ridgeline</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Odyssey')" ontouchend="selModelBtn('Odyssey')">Odyssey</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Hyundai" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('Elantra')" ontouchend="selModelBtn('Elantra')">Elantra</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Sonata')" ontouchend="selModelBtn('Sonata')">Sonata</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Accent')" ontouchend="selModelBtn('Accent')">Accent</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Venue')" ontouchend="selModelBtn('Venue')">Venue</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Kona')" ontouchend="selModelBtn('Kona')">Kona</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Tucson')" ontouchend="selModelBtn('Tucson')">Tucson</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Santa Fe')" ontouchend="selModelBtn('Santa Fe')">Santa Fe</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Palisade')" ontouchend="selModelBtn('Palisade')">Palisade</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Ioniq 5')" ontouchend="selModelBtn('Ioniq 5')">Ioniq 5</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Ioniq 6')" ontouchend="selModelBtn('Ioniq 6')">Ioniq 6</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Infiniti" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('Q50')" ontouchend="selModelBtn('Q50')">Q50</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Q60')" ontouchend="selModelBtn('Q60')">Q60</button>
+<button type="button" class="vbtn" onclick="selModelBtn('QX50')" ontouchend="selModelBtn('QX50')">QX50</button>
+<button type="button" class="vbtn" onclick="selModelBtn('QX55')" ontouchend="selModelBtn('QX55')">QX55</button>
+<button type="button" class="vbtn" onclick="selModelBtn('QX60')" ontouchend="selModelBtn('QX60')">QX60</button>
+<button type="button" class="vbtn" onclick="selModelBtn('QX80')" ontouchend="selModelBtn('QX80')">QX80</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Jeep" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('Renegade')" ontouchend="selModelBtn('Renegade')">Renegade</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Compass')" ontouchend="selModelBtn('Compass')">Compass</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Cherokee')" ontouchend="selModelBtn('Cherokee')">Cherokee</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Grand Cherokee')" ontouchend="selModelBtn('Grand Cherokee')">Grand Cherokee</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Wrangler')" ontouchend="selModelBtn('Wrangler')">Wrangler</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Gladiator')" ontouchend="selModelBtn('Gladiator')">Gladiator</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Wagoneer')" ontouchend="selModelBtn('Wagoneer')">Wagoneer</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Kia" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('Rio')" ontouchend="selModelBtn('Rio')">Rio</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Forte')" ontouchend="selModelBtn('Forte')">Forte</button>
+<button type="button" class="vbtn" onclick="selModelBtn('K5')" ontouchend="selModelBtn('K5')">K5</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Stinger')" ontouchend="selModelBtn('Stinger')">Stinger</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Soul')" ontouchend="selModelBtn('Soul')">Soul</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Seltos')" ontouchend="selModelBtn('Seltos')">Seltos</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Sportage')" ontouchend="selModelBtn('Sportage')">Sportage</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Sorento')" ontouchend="selModelBtn('Sorento')">Sorento</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Telluride')" ontouchend="selModelBtn('Telluride')">Telluride</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Carnival')" ontouchend="selModelBtn('Carnival')">Carnival</button>
+<button type="button" class="vbtn" onclick="selModelBtn('EV6')" ontouchend="selModelBtn('EV6')">EV6</button>
+<button type="button" class="vbtn" onclick="selModelBtn('EV9')" ontouchend="selModelBtn('EV9')">EV9</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Lexus" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('IS')" ontouchend="selModelBtn('IS')">IS</button>
+<button type="button" class="vbtn" onclick="selModelBtn('ES')" ontouchend="selModelBtn('ES')">ES</button>
+<button type="button" class="vbtn" onclick="selModelBtn('GS')" ontouchend="selModelBtn('GS')">GS</button>
+<button type="button" class="vbtn" onclick="selModelBtn('LS')" ontouchend="selModelBtn('LS')">LS</button>
+<button type="button" class="vbtn" onclick="selModelBtn('UX')" ontouchend="selModelBtn('UX')">UX</button>
+<button type="button" class="vbtn" onclick="selModelBtn('NX')" ontouchend="selModelBtn('NX')">NX</button>
+<button type="button" class="vbtn" onclick="selModelBtn('RX')" ontouchend="selModelBtn('RX')">RX</button>
+<button type="button" class="vbtn" onclick="selModelBtn('GX')" ontouchend="selModelBtn('GX')">GX</button>
+<button type="button" class="vbtn" onclick="selModelBtn('LX')" ontouchend="selModelBtn('LX')">LX</button>
+<button type="button" class="vbtn" onclick="selModelBtn('RC')" ontouchend="selModelBtn('RC')">RC</button>
+<button type="button" class="vbtn" onclick="selModelBtn('LC')" ontouchend="selModelBtn('LC')">LC</button>
+<button type="button" class="vbtn" onclick="selModelBtn('RZ')" ontouchend="selModelBtn('RZ')">RZ</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Lincoln" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('Corsair')" ontouchend="selModelBtn('Corsair')">Corsair</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Nautilus')" ontouchend="selModelBtn('Nautilus')">Nautilus</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Aviator')" ontouchend="selModelBtn('Aviator')">Aviator</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Navigator')" ontouchend="selModelBtn('Navigator')">Navigator</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Mazda" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('Mazda3')" ontouchend="selModelBtn('Mazda3')">Mazda3</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Mazda6')" ontouchend="selModelBtn('Mazda6')">Mazda6</button>
+<button type="button" class="vbtn" onclick="selModelBtn('CX-30')" ontouchend="selModelBtn('CX-30')">CX-30</button>
+<button type="button" class="vbtn" onclick="selModelBtn('CX-50')" ontouchend="selModelBtn('CX-50')">CX-50</button>
+<button type="button" class="vbtn" onclick="selModelBtn('CX-5')" ontouchend="selModelBtn('CX-5')">CX-5</button>
+<button type="button" class="vbtn" onclick="selModelBtn('CX-70')" ontouchend="selModelBtn('CX-70')">CX-70</button>
+<button type="button" class="vbtn" onclick="selModelBtn('CX-90')" ontouchend="selModelBtn('CX-90')">CX-90</button>
+<button type="button" class="vbtn" onclick="selModelBtn('MX-5 Miata')" ontouchend="selModelBtn('MX-5 Miata')">MX-5 Miata</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Mercedes" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('A-Class')" ontouchend="selModelBtn('A-Class')">A-Class</button>
+<button type="button" class="vbtn" onclick="selModelBtn('C-Class')" ontouchend="selModelBtn('C-Class')">C-Class</button>
+<button type="button" class="vbtn" onclick="selModelBtn('E-Class')" ontouchend="selModelBtn('E-Class')">E-Class</button>
+<button type="button" class="vbtn" onclick="selModelBtn('S-Class')" ontouchend="selModelBtn('S-Class')">S-Class</button>
+<button type="button" class="vbtn" onclick="selModelBtn('CLA')" ontouchend="selModelBtn('CLA')">CLA</button>
+<button type="button" class="vbtn" onclick="selModelBtn('GLA')" ontouchend="selModelBtn('GLA')">GLA</button>
+<button type="button" class="vbtn" onclick="selModelBtn('GLB')" ontouchend="selModelBtn('GLB')">GLB</button>
+<button type="button" class="vbtn" onclick="selModelBtn('GLC')" ontouchend="selModelBtn('GLC')">GLC</button>
+<button type="button" class="vbtn" onclick="selModelBtn('GLE')" ontouchend="selModelBtn('GLE')">GLE</button>
+<button type="button" class="vbtn" onclick="selModelBtn('GLS')" ontouchend="selModelBtn('GLS')">GLS</button>
+<button type="button" class="vbtn" onclick="selModelBtn('G-Class')" ontouchend="selModelBtn('G-Class')">G-Class</button>
+<button type="button" class="vbtn" onclick="selModelBtn('EQB')" ontouchend="selModelBtn('EQB')">EQB</button>
+<button type="button" class="vbtn" onclick="selModelBtn('EQE')" ontouchend="selModelBtn('EQE')">EQE</button>
+<button type="button" class="vbtn" onclick="selModelBtn('EQS')" ontouchend="selModelBtn('EQS')">EQS</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Mitsubishi" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('Mirage')" ontouchend="selModelBtn('Mirage')">Mirage</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Eclipse Cross')" ontouchend="selModelBtn('Eclipse Cross')">Eclipse Cross</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Outlander')" ontouchend="selModelBtn('Outlander')">Outlander</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Outlander Sport')" ontouchend="selModelBtn('Outlander Sport')">Outlander Sport</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Nissan" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('Versa')" ontouchend="selModelBtn('Versa')">Versa</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Sentra')" ontouchend="selModelBtn('Sentra')">Sentra</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Altima')" ontouchend="selModelBtn('Altima')">Altima</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Maxima')" ontouchend="selModelBtn('Maxima')">Maxima</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Leaf')" ontouchend="selModelBtn('Leaf')">Leaf</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Ariya')" ontouchend="selModelBtn('Ariya')">Ariya</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Kicks')" ontouchend="selModelBtn('Kicks')">Kicks</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Rogue')" ontouchend="selModelBtn('Rogue')">Rogue</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Murano')" ontouchend="selModelBtn('Murano')">Murano</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Pathfinder')" ontouchend="selModelBtn('Pathfinder')">Pathfinder</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Armada')" ontouchend="selModelBtn('Armada')">Armada</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Frontier')" ontouchend="selModelBtn('Frontier')">Frontier</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Titan')" ontouchend="selModelBtn('Titan')">Titan</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Porsche" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('911')" ontouchend="selModelBtn('911')">911</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Taycan')" ontouchend="selModelBtn('Taycan')">Taycan</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Panamera')" ontouchend="selModelBtn('Panamera')">Panamera</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Macan')" ontouchend="selModelBtn('Macan')">Macan</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Cayenne')" ontouchend="selModelBtn('Cayenne')">Cayenne</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_RAM" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('1500')" ontouchend="selModelBtn('1500')">1500</button>
+<button type="button" class="vbtn" onclick="selModelBtn('2500')" ontouchend="selModelBtn('2500')">2500</button>
+<button type="button" class="vbtn" onclick="selModelBtn('3500')" ontouchend="selModelBtn('3500')">3500</button>
+<button type="button" class="vbtn" onclick="selModelBtn('ProMaster')" ontouchend="selModelBtn('ProMaster')">ProMaster</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Rivian" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('R1T')" ontouchend="selModelBtn('R1T')">R1T</button>
+<button type="button" class="vbtn" onclick="selModelBtn('R1S')" ontouchend="selModelBtn('R1S')">R1S</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Subaru" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('Impreza')" ontouchend="selModelBtn('Impreza')">Impreza</button>
+<button type="button" class="vbtn" onclick="selModelBtn('WRX')" ontouchend="selModelBtn('WRX')">WRX</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Legacy')" ontouchend="selModelBtn('Legacy')">Legacy</button>
+<button type="button" class="vbtn" onclick="selModelBtn('BRZ')" ontouchend="selModelBtn('BRZ')">BRZ</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Crosstrek')" ontouchend="selModelBtn('Crosstrek')">Crosstrek</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Forester')" ontouchend="selModelBtn('Forester')">Forester</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Outback')" ontouchend="selModelBtn('Outback')">Outback</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Ascent')" ontouchend="selModelBtn('Ascent')">Ascent</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Solterra')" ontouchend="selModelBtn('Solterra')">Solterra</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Tesla" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('Model 3')" ontouchend="selModelBtn('Model 3')">Model 3</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Model S')" ontouchend="selModelBtn('Model S')">Model S</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Model X')" ontouchend="selModelBtn('Model X')">Model X</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Model Y')" ontouchend="selModelBtn('Model Y')">Model Y</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Cybertruck')" ontouchend="selModelBtn('Cybertruck')">Cybertruck</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Toyota" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('Corolla')" ontouchend="selModelBtn('Corolla')">Corolla</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Camry')" ontouchend="selModelBtn('Camry')">Camry</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Avalon')" ontouchend="selModelBtn('Avalon')">Avalon</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Prius')" ontouchend="selModelBtn('Prius')">Prius</button>
+<button type="button" class="vbtn" onclick="selModelBtn('GR86')" ontouchend="selModelBtn('GR86')">GR86</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Supra')" ontouchend="selModelBtn('Supra')">Supra</button>
+<button type="button" class="vbtn" onclick="selModelBtn('C-HR')" ontouchend="selModelBtn('C-HR')">C-HR</button>
+<button type="button" class="vbtn" onclick="selModelBtn('RAV4')" ontouchend="selModelBtn('RAV4')">RAV4</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Venza')" ontouchend="selModelBtn('Venza')">Venza</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Highlander')" ontouchend="selModelBtn('Highlander')">Highlander</button>
+<button type="button" class="vbtn" onclick="selModelBtn('4Runner')" ontouchend="selModelBtn('4Runner')">4Runner</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Sequoia')" ontouchend="selModelBtn('Sequoia')">Sequoia</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Land Cruiser')" ontouchend="selModelBtn('Land Cruiser')">Land Cruiser</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Tacoma')" ontouchend="selModelBtn('Tacoma')">Tacoma</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Tundra')" ontouchend="selModelBtn('Tundra')">Tundra</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Sienna')" ontouchend="selModelBtn('Sienna')">Sienna</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Crown')" ontouchend="selModelBtn('Crown')">Crown</button>
+<button type="button" class="vbtn" onclick="selModelBtn('bZ4X')" ontouchend="selModelBtn('bZ4X')">bZ4X</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Volkswagen" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('Golf')" ontouchend="selModelBtn('Golf')">Golf</button>
+<button type="button" class="vbtn" onclick="selModelBtn('GTI')" ontouchend="selModelBtn('GTI')">GTI</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Jetta')" ontouchend="selModelBtn('Jetta')">Jetta</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Passat')" ontouchend="selModelBtn('Passat')">Passat</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Arteon')" ontouchend="selModelBtn('Arteon')">Arteon</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Taos')" ontouchend="selModelBtn('Taos')">Taos</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Tiguan')" ontouchend="selModelBtn('Tiguan')">Tiguan</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Atlas')" ontouchend="selModelBtn('Atlas')">Atlas</button>
+<button type="button" class="vbtn" onclick="selModelBtn('ID.4')" ontouchend="selModelBtn('ID.4')">ID.4</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+<div id="mb_Volvo" style="display:none"><button type="button" class="vbtn" onclick="selModelBtn('S60')" ontouchend="selModelBtn('S60')">S60</button>
+<button type="button" class="vbtn" onclick="selModelBtn('S90')" ontouchend="selModelBtn('S90')">S90</button>
+<button type="button" class="vbtn" onclick="selModelBtn('V60')" ontouchend="selModelBtn('V60')">V60</button>
+<button type="button" class="vbtn" onclick="selModelBtn('V90')" ontouchend="selModelBtn('V90')">V90</button>
+<button type="button" class="vbtn" onclick="selModelBtn('XC40')" ontouchend="selModelBtn('XC40')">XC40</button>
+<button type="button" class="vbtn" onclick="selModelBtn('XC60')" ontouchend="selModelBtn('XC60')">XC60</button>
+<button type="button" class="vbtn" onclick="selModelBtn('XC90')" ontouchend="selModelBtn('XC90')">XC90</button>
+<button type="button" class="vbtn" onclick="selModelBtn('C40')" ontouchend="selModelBtn('C40')">C40</button>
+<button type="button" class="vbtn" onclick="selModelBtn('Other')" ontouchend="selModelBtn('Other')">Other</button>
+</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Trim / Package</label>
+          <input class="form-input" type="text" id="cTrim" placeholder="XSE Premium, Sport..." style="font-size:16px;min-height:48px;">
+        </div>
+      </div>
+
+
+
+      <!-- 면책 문구 -->
+      <div style="background:#0d0d0c;border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-top:4px;margin-bottom:4px;">
+        <div style="font-size:9px;color:var(--gray);line-height:1.5;">
+          By signing below, I acknowledge that I have read and agree to the following terms:<br><br>
+          I understand and accept full responsibility for any action that may be taken by the State of California Motor Vehicle Department regarding window tinting performed on my vehicle. I am fully aware of California laws and regulations concerning motor vehicle window tinting.<br><br>
+          <strong style="color:var(--gray-lt);">All sales are final.</strong> No refunds will be issued for blown speakers, non-working items, or damage unrelated to tinting services. America Tint Inc. is not responsible for any damage or accidents occurring while the vehicle is in our care for tinting services.<br><br>
+          Warranty coverage is as follows: <strong style="color:var(--gray-lt);">Regular Film</strong> — No warranty. <strong style="color:var(--gray-lt);">Carbon Film</strong> — 3-year warranty (color fading &amp; bubbling only). <strong style="color:var(--gold);">Ceramic / 3M Films</strong> — Lifetime warranty (color fading &amp; bubbling only). Warranty does <u>not</u> cover scratches, lint, re-tints, or damage caused by external factors. Products not purchased through America Tint Inc. are not covered.<br><br>
+          <strong style="color:var(--gold);">WARRANTY IS VALID ONLY WITH THIS SIGNED RECEIPT.</strong>
+        </div>
+      </div>
+      <!-- 사인 -->
+      <div class="form-group" style="margin-top:8px;">
+        <label class="form-label">Signature <span class="req">*</span></label>
+        <div style="position:relative;">
+          <canvas id="sigCanvas" width="600" height="160"
+            style="width:100%;height:160px;background:#0d0d0c;border:1px solid var(--border);border-radius:8px;cursor:crosshair;touch-action:none;display:block;-webkit-user-select:none;"></canvas>
+          <button onclick="clearSig()" style="position:absolute;top:6px;right:8px;
+            background:transparent;color:var(--gray);border:1px solid var(--border);
+            border-radius:4px;padding:3px 10px;font-size:11px;cursor:pointer;">Clear</button>
+        </div>
+        <div style="font-size:11px;color:var(--gray);margin-top:4px;">WARRANTY VALID ONLY WITH SIGNATURE</div>
+      </div>
+
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-next" id="btn0" onclick="goStep(1)" disabled>NEXT →</button>
+    </div>
+  </div>
+
+  <!-- ══ STEP 1: VEHICLE + FILM ══ -->
+  <div id="step1" class="step-panel">
+    <div class="sec-label">Step 2 of 2</div>
+    <div class="sec-title">SELECT VEHICLE, FILM & WINDOWS</div>
+
+    <div class="sec-label" style="margin-top:0;">Vehicle Type</div>
+    <div class="veh-grid" id="vehGrid"></div>
+
+    <!-- Tesla model sub-row -->
+    <div class="tesla-models" id="teslaModels"></div>
+
+    <div class="sec-label" style="margin-top:24px;">Film Type</div>
+    <div class="film-row" id="filmRow"></div>
+
+    <div style="display:flex;gap:8px;margin-top:20px;">
+      <button type="button" onclick="applyPackage('standard')" style="flex:1;padding:14px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px;background:#1a1a18;border:1px solid #c8a535;border-radius:8px;color:#c8a535;cursor:pointer;text-transform:uppercase;">
+        ★ Standard Package<br>
+        <span style="font-size:10px;color:#7a7870;font-weight:400;letter-spacing:1px;">Front 2 Doors + All Side & Back</span>
+      </button>
+      <button type="button" onclick="clearAllWindows()" style="padding:14px 20px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;background:#1a1a18;border:1px solid #2e2e2a;border-radius:8px;color:#7a7870;cursor:pointer;">CLEAR ALL</button>
+    </div>
+
+    <div class="info-banner" id="infoBanner" style="margin-top:16px;"></div>
+
+    <!-- 색상 선택 팝업 -->
+    <div id="tintPopup" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:999;background:#1a1a18;border:1px solid #c8a535;border-radius:12px;padding:24px 20px;min-width:320px;box-shadow:0 8px 32px rgba(0,0,0,0.8);">
+      <div id="popupTitle" style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;color:#c8a535;text-transform:uppercase;margin-bottom:16px;text-align:center;">SELECT SHADE</div>
+      <div id="popupBtns" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px;"></div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="clearShade()" style="flex:1;padding:10px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;background:transparent;color:#e05050;border:1px solid #e05050;border-radius:6px;cursor:pointer;">CLEAR</button>
+        <button onclick="closePopup()" style="flex:1;padding:10px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;background:transparent;color:#7a7870;border:1px solid #2e2e2a;border-radius:6px;cursor:pointer;">CANCEL</button>
+      </div>
+    </div>
+    <div id="tintOverlay" onclick="closePopup()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:998;"></div>
+
+    <!-- 차량 다이어그램 -->
+    <div id="carDiagramWrap" style="background:#1a1a18;border:1px solid #2e2e2a;border-radius:12px;padding:12px;margin-bottom:8px;margin-top:12px;"></div>
+
+    <!-- 창 선택 목록 -->
+    <div class="area-list" id="areaList" style="margin-top:8px;"></div>
+
+    <!-- 가격 합계 -->
+    <div style="padding-top:8px;">
+      <div class="total-bar" style="flex-direction:column;align-items:stretch;gap:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="total-lbl">Subtotal</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--white);line-height:1;" id="subAmt">$0</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="total-lbl" id="taxLabel">Sales Tax</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--gray-lt);line-height:1;" id="taxAmt">$0</div>
+        </div>
+        <div style="border-top:1px solid rgba(200,165,53,0.3);padding-top:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <div style="display:flex;align-items:center;gap:8px;flex:1;">
+            <div class="total-lbl" style="color:var(--white);white-space:nowrap;">Total</div>
+            <input type="number" id="noteAmt" min="0" value="0" oninput="calcTotal()" onfocus="if(this.value==='0')this.value=''" onblur="if(this.value==='')this.value='0';calcTotal();" placeholder="Note"
+              style="width:90px;background:#0d0d0c;border:1px solid var(--border);border-radius:6px;
+              padding:5px 8px;font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);
+              text-align:center;outline:none;-webkit-appearance:none;appearance:none;">
+          </div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--gold);line-height:1;" id="totalAmt">$0</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;">CARD</div>
+          <div style="display:flex;align-items:center;gap:4px;">
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gray-lt);">$</span>
+            <input type="number" id="cardAmt" min="0" value="0" oninput="updatePaymentSummary()" onfocus="if(this.value==='0')this.value=''" onblur="if(this.value==='')this.value='0';updatePaymentSummary();"
+              style="width:100%;background:transparent;border:none;font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--white);outline:none;-webkit-appearance:none;appearance:none;">
+          </div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;">CASH</div>
+          <div style="display:flex;align-items:center;gap:4px;">
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gray-lt);">$</span>
+            <input type="number" id="cashAmt" min="0" value="0" oninput="updatePaymentSummary()" onfocus="if(this.value==='0')this.value=''" onblur="if(this.value==='')this.value='0';updatePaymentSummary();"
+              style="width:100%;background:transparent;border:none;font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--white);outline:none;-webkit-appearance:none;appearance:none;">
+          </div>
+        </div>
+      </div>
+      <div id="paymentCheck" style="text-align:center;margin-top:8px;font-size:13px;"></div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-back" onclick="goStep(0)">← BACK</button>
+      <button class="btn-next" id="btn1" onclick="doConfirm()" disabled>CONFIRM & START SERVICE ✓</button>
+    </div>
+    <button class="btn-reset" onclick="resetAll()">START OVER</button>
+
+  </div>
+
+  <!-- ══ STEP 2: CONFIRMED ══ -->
+  <div id="step2" class="step-panel">
+    <div class="confirmed-wrap">
+      <div class="conf-icon">✓</div>
+      <div class="conf-title">SERVICE CONFIRMED</div>
+      <div class="conf-sub" id="confSub"></div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-bottom:16px;flex-wrap:wrap;">
+        <button onclick="goStep(1)" style="padding:14px 24px;
+          font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+          background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:6px;cursor:pointer;">
+          ← EDIT
+        </button>
+        <button onclick="printReceipt()" style="padding:14px 24px;
+          font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+          background:transparent;color:#5aaa5a;border:1px solid #5aaa5a;border-radius:6px;cursor:pointer;">
+          🖨 PRINT RECEIPT
+        </button>
+        <button onclick="printWorkOrder()" style="padding:14px 24px;
+          font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+          background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:6px;cursor:pointer;">
+          🔧 WORK ORDER
+        </button>
+        <button class="btn-new" onclick="resetAll()">NEW CUSTOMER</button>
+      </div>
+      <div class="quote-card" id="confCard" style="text-align:left;max-width:500px;margin:0 auto;"></div>
+      <div style="margin-top:16px;">
+        <a href="https://docs.google.com/spreadsheets/d/1PCsTPihgMIBw4B8WSexa2T4F2-qnMN1-ylKAcJrwp2I/edit" target="_blank"
+          style="display:inline-block;padding:14px 36px;
+          font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+          background:transparent;color:#4a9a4a;border:1px solid #4a9a4a;border-radius:6px;text-decoration:none;">
+          📊 VIEW GOOGLE SHEET
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ══ MODEL DATA ══ */
+var MODELS = {
+  "Acura": ["ILX","TLX","RLX","MDX","RDX","ZDX","Integra","Other"],
+  "Audi": ["A3","A4","A5","A6","A7","A8","Q3","Q4","Q5","Q7","Q8","e-tron","TT","R8","Other"],
+  "BMW": ["2 Series","3 Series","4 Series","5 Series","7 Series","8 Series","X1","X2","X3","X4","X5","X6","X7","Z4","i3","i4","i7","iX","Other"],
+  "Buick": ["Encore","Encore GX","Envision","Enclave","Other"],
+  "Cadillac": ["CT4","CT5","XT4","XT5","XT6","Escalade","Lyriq","Other"],
+  "Chevrolet": ["Spark","Trax","Trailblazer","Equinox","Blazer","Traverse","Tahoe","Suburban","Colorado","Silverado 1500","Silverado 2500","Corvette","Camaro","Malibu","Other"],
+  "Chrysler": ["300","Pacifica","Voyager","Other"],
+  "Dodge": ["Challenger","Charger","Durango","Hornet","Other"],
+  "Ford": ["Mustang","Mustang Mach-E","F-150","F-250","F-350","Bronco","Bronco Sport","Explorer","Expedition","Edge","Escape","Maverick","Ranger","Other"],
+  "Genesis": ["G70","G80","G90","GV70","GV80","GV60","Other"],
+  "GMC": ["Terrain","Acadia","Yukon","Yukon XL","Canyon","Sierra 1500","Sierra 2500","Hummer EV","Other"],
+  "Honda": ["Civic","Accord","Insight","HR-V","CR-V","Pilot","Passport","Ridgeline","Odyssey","Other"],
+  "Hyundai": ["Elantra","Sonata","Accent","Venue","Kona","Tucson","Santa Fe","Palisade","Ioniq 5","Ioniq 6","Other"],
+  "Infiniti": ["Q50","Q60","QX50","QX55","QX60","QX80","Other"],
+  "Jeep": ["Renegade","Compass","Cherokee","Grand Cherokee","Wrangler","Gladiator","Wagoneer","Other"],
+  "Kia": ["Rio","Forte","K5","Stinger","Soul","Seltos","Sportage","Sorento","Telluride","Carnival","EV6","EV9","Other"],
+  "Lexus": ["IS","ES","GS","LS","UX","NX","RX","GX","LX","RC","LC","RZ","Other"],
+  "Lincoln": ["Corsair","Nautilus","Aviator","Navigator","Other"],
+  "Mazda": ["Mazda3","Mazda6","CX-30","CX-50","CX-5","CX-70","CX-90","MX-5 Miata","Other"],
+  "Mercedes": ["A-Class","C-Class","E-Class","S-Class","CLA","GLA","GLB","GLC","GLE","GLS","G-Class","EQB","EQE","EQS","Other"],
+  "Mitsubishi": ["Mirage","Eclipse Cross","Outlander","Outlander Sport","Other"],
+  "Nissan": ["Versa","Sentra","Altima","Maxima","Leaf","Ariya","Kicks","Rogue","Murano","Pathfinder","Armada","Frontier","Titan","Other"],
+  "Porsche": ["911","Taycan","Panamera","Macan","Cayenne","Other"],
+  "RAM": ["1500","2500","3500","ProMaster","Other"],
+  "Rivian": ["R1T","R1S","Other"],
+  "Subaru": ["Impreza","WRX","Legacy","BRZ","Crosstrek","Forester","Outback","Ascent","Solterra","Other"],
+  "Tesla": ["Model 3","Model S","Model X","Model Y","Cybertruck","Other"],
+  "Toyota": ["Corolla","Camry","Avalon","Prius","GR86","Supra","C-HR","RAV4","Venza","Highlander","4Runner","Sequoia","Land Cruiser","Tacoma","Tundra","Sienna","Crown","bZ4X","Other"],
+  "Volkswagen": ["Golf","GTI","Jetta","Passat","Arteon","Taos","Tiguan","Atlas","ID.4","Other"],
+  "Volvo": ["S60","S90","V60","V90","XC40","XC60","XC90","C40","Other"]
+};
+
+/* ══ VEHICLE DATA ══ */
+const VEHICLES = [
+  { id:'sedan',   label:'Sedan',           icon:'🚗', sub:'4-door cars' },
+  { id:'suv',     label:'SUV / Truck',    icon:'🚙', sub:'Mid-size SUV & trucks' },
+  { id:'fullsuv', label:'Van / Full SUV', icon:'🚐', sub:'Full-size SUV, minivan' },
+  { id:'tesla',   label:'Tesla',          icon:'⚡', sub:'Ceramic & Above' },
+];
+const TESLA_MODELS = [
+  { id:'tesla3',     label:'Model 3',    short:'3' },
+  { id:'teslas',     label:'Model S',    short:'S' },
+  { id:'teslax',     label:'Model X',    short:'X' },
+  { id:'teslay',     label:'Model Y',    short:'Y' },
+  { id:'teslacyber', label:'Cybertruck', short:'⚡' },
+];
+const FILMS = [
+  { id:'speeder',     name:'Speeder',        sub:'NANO CARBON',  warranty:'No warranty',       forTesla:false },
+  { id:'vista',       name:'Vista',          sub:'NANO CARBON',  warranty:'No warranty',       forTesla:false },
+  { id:'m2',          name:'M2',             sub:'NANO CERAMIC', warranty:'Lifetime warranty', forTesla:true  },
+  { id:'ir3m',        name:'3M Ceramic IR',  sub:'3M BRAND',     warranty:'Lifetime warranty', forTesla:true  },
+  { id:'crystalline', name:'3M Crystalline', sub:'3M TOP TIER',  warranty:'Lifetime warranty', forTesla:true  },
+  { id:'remove',      name:'Remove',         sub:'TINT REMOVAL',  warranty:'No warranty',       forTesla:true  },
+];
+const P = {
+  speeder:    { sedan:145, suv:185, fullsuv:215, front_wind:null, sunroof:50, sunvisor:50, quarter_wind:10, front_2door:150, tesla3_all:null, tesla3_2front:150, tesla3_front:null, tesla3_sunroof:50, tesla3_qw:10, teslas_all:null, teslas_2front:150, teslas_front:null, teslas_sunroof:50, teslas_qw:10, teslax_all:null, teslax_2front:150, teslax_front:null, teslax_sunroof:50, teslax_qw:10, teslay_all:null, teslay_2front:150, teslay_front:null, teslay_sunroof:50, teslay_qw:10, teslacyber_all:null, teslacyber_2front:150, teslacyber_front:null, teslacyber_sunroof:50, teslacyber_qw:50 },
+  vista:      { sedan:245, suv:295, fullsuv:345, front_wind:null, sunroof:70, sunvisor:60, quarter_wind:15, front_2door:150, tesla3_all:null, tesla3_2front:150, tesla3_front:null, tesla3_sunroof:70, tesla3_qw:15, teslas_all:null, teslas_2front:150, teslas_front:null, teslas_sunroof:70, teslas_qw:15, teslax_all:null, teslax_2front:150, teslax_front:null, teslax_sunroof:70, teslax_qw:15, teslay_all:null, teslay_2front:150, teslay_front:null, teslay_sunroof:70, teslay_qw:15, teslacyber_all:null, teslacyber_2front:150, teslacyber_front:null, teslacyber_sunroof:70, teslacyber_qw:50 },
+  m2:         { sedan:345, suv:395, fullsuv:445, front_wind:245, sunroof:100, sunvisor:70, quarter_wind:20, front_2door:150, tesla3_all:495, tesla3_2front:150, tesla3_front:245, tesla3_sunroof:100, tesla3_qw:20, teslas_all:395, teslas_2front:150, teslas_front:245, teslas_sunroof:295, teslas_qw:20, teslax_all:495, teslax_2front:150, teslax_front:550, teslax_sunroof:295, teslax_qw:20, teslay_all:395, teslay_2front:150, teslay_front:245, teslay_sunroof:225, teslay_qw:10, teslacyber_all:495, teslacyber_2front:150, teslacyber_front:750, teslacyber_sunroof:495, teslacyber_qw:50 },
+  ir3m:       { sedan:545, suv:695, fullsuv:745, front_wind:345, sunroof:150, sunvisor:90, quarter_wind:30, front_2door:195, tesla3_all:795, tesla3_2front:245, tesla3_front:345, tesla3_sunroof:null, tesla3_qw:30, teslas_all:595, teslas_2front:150, teslas_front:null, teslas_sunroof:495, teslas_qw:30, teslax_all:795, teslax_2front:275, teslax_front:795, teslax_sunroof:295, teslax_qw:30, teslay_all:695, teslay_2front:245, teslay_front:null, teslay_sunroof:505, teslay_qw:10, teslacyber_all:795, teslacyber_2front:275, teslacyber_front:795, teslacyber_sunroof:795, teslacyber_qw:100 },
+  remove:     { sedan:25, suv:25, fullsuv:25, front_wind:120, back_wind:200, sunroof:30, sunvisor:30, quarter_wind:10, front_2door:25, tesla3_all:25, tesla3_2front:25, tesla3_front:120, tesla3_rear:200, tesla3_sunroof:30, tesla3_qw:10, teslas_all:25, teslas_2front:25, teslas_front:120, teslas_rear:200, teslas_sunroof:30, teslas_qw:10, teslax_all:25, teslax_2front:25, teslax_front:120, teslax_rear:200, teslax_sunroof:30, teslax_qw:10, teslay_all:25, teslay_2front:25, teslay_front:120, teslay_rear:200, teslay_sunroof:30, teslay_qw:10, teslacyber_all:25, teslacyber_2front:25, teslacyber_front:120, teslacyber_rear:200, teslacyber_sunroof:30, teslacyber_qw:10 },
+  crystalline:{ sedan:795, suv:945, fullsuv:995, front_wind:445, sunroof:200, sunvisor:null, quarter_wind:50, front_2door:295, tesla3_all:1400, tesla3_2front:null, tesla3_front:445, tesla3_sunroof:null, tesla3_qw:50, teslas_all:795, teslas_2front:null, teslas_front:null, teslas_sunroof:795, teslas_qw:50, teslax_all:1400, teslax_2front:345, teslax_front:1400, teslax_sunroof:295, teslax_qw:50, teslay_all:995, teslay_2front:295, teslay_front:null, teslay_sunroof:795, teslay_qw:10, teslacyber_all:995, teslacyber_2front:345, teslacyber_front:1400, teslacyber_sunroof:795, teslacyber_qw:150 },
+};
+
+
+
+/* ══ STATE ══ */
+var sel = { vehicle:null, teslaModel:null, film:null, areas:[], qty:0, activeQW:[], standardPackage:false, tint:{front:null, rear:null, frontWind:null, rearWind:null, frontQuarter:null, rearQuarter:null, sunvisor:null, sunroof:null} };
+const isTesla = () => sel.vehicle === 'tesla';
+const tm = () => sel.teslaModel;
+const gp = (key) => (sel.film && key) ? (P[sel.film][key] != null ? P[sel.film][key] : null) : null;
+
+/* ══ AREAS ══ */
+function getAreas() {
+  var isRemove = sel.film === 'remove';
+  if (isTesla()) {
+    const m = tm();
+    if (isRemove) return [
+      { id:'2front',  label:'Front 2 Doors',   note:'앞문 2개',            pk: m+'_2front',  zone:'frontdoors' },
+      { id:'fwind',   label:'Front Windshield',note:'전면 윈드쉴드',       pk: m+'_front',   zone:'frontwind' },
+      { id:'rearwind',label:'Rear Windshield', note:'뒷 유리',             pk: m+'_rear',    zone:'rearwind' },
+      { id:'sunroof', label:'Sunroof',         note:'썬루프',              pk: m+'_sunroof', zone:'sunroof' },
+      { id:'qw',      label:'Quarter Window',  note:'쪽유리 (개당)',        pk: m+'_qw',      zone:'quarter', isQty:true },
+      { id:'sunvisor',label:'Sun Visor',       note:'선바이저',            pk:'sunvisor',    zone:'sunvisor' },
+    ];
+    return [
+      { id:'all',     label:'All Side & Back', note:'전체 사이드 + 뒷유리', pk: m+'_all',     zone:'allside' },
+      { id:'2front',  label:'Front 2 Doors',   note:'앞문 2개',            pk: m+'_2front',  zone:'frontdoors' },
+      { id:'qw',      label:'Quarter Window',  note:'쪽유리 (개당)',        pk: m+'_qw',      zone:'quarter', isQty:true },
+      { id:'fwind',   label:'Front Windshield',note:'전면 윈드쉴드',       pk: m+'_front',   zone:'frontwind', needsCeramic:true },
+      { id:'sunroof', label:'Sunroof',         note:'썬루프',              pk: m+'_sunroof', zone:'sunroof' },
+      { id:'sunvisor',label:'Sun Visor',       note:'선바이저',            pk:'sunvisor',    zone:'sunvisor' },
+      { id:'rearwind',label:'Rear Windshield', note:'뒷 유리',             pk: m+'_rear',    zone:'rearwind' },
+    ];
+  }
+  if (isRemove) return [
+    { id:'rm_fl',   label:'Front Left',      note:'앞 왼쪽',             pk:'front_2door', zone:'rm_fl' },
+    { id:'rm_fr',   label:'Front Right',     note:'앞 오른쪽',           pk:'front_2door', zone:'rm_fr' },
+    { id:'rm_rl',   label:'Rear Left',       note:'뒤 왼쪽',             pk: sel.vehicle,  zone:'rm_rl' },
+    { id:'rm_rr',   label:'Rear Right',      note:'뒤 오른쪽',           pk: sel.vehicle,  zone:'rm_rr' },
+    { id:'fwind',   label:'Front Windshield',note:'전면 윈드쉴드',       pk:'front_wind',  zone:'frontwind' },
+    { id:'rearwind',label:'Rear Windshield', note:'뒷 유리',             pk:'back_wind',   zone:'rearwind' },
+    { id:'sunroof', label:'Sunroof',         note:'썬루프',              pk:'sunroof',     zone:'sunroof' },
+    { id:'qw',      label:'Quarter Window',  note:'쪽유리 (개당)',        pk:'quarter_wind',zone:'quarter', isQty:true },
+    { id:'sunvisor',label:'Sun Visor',       note:'선바이저',            pk:'sunvisor',    zone:'sunvisor' },
+  ];
+  return [
+    { id:'all',     label:'All Side & Back', note:'전체 사이드 + 뒷유리', pk: sel.vehicle,  zone:'allside' },
+    { id:'2front',  label:'Front 2 Doors',   note:'앞문 2개',            pk:'front_2door', zone:'frontdoors' },
+    { id:'qw',      label:'Quarter Window',  note:'쪽유리 (개당)',        pk:'quarter_wind',zone:'quarter', isQty:true },
+    { id:'fwind',   label:'Front Windshield',note:'전면 윈드쉴드',       pk:'front_wind',  zone:'frontwind', needsCeramic:true },
+    { id:'sunroof', label:'Sunroof',         note:'썬루프',              pk:'sunroof',     zone:'sunroof' },
+    { id:'sunvisor',label:'Sun Visor',       note:'선바이저',            pk:'sunvisor',    zone:'sunvisor' },
+    { id:'rearwind',label:'Rear Windshield', note:'뒷 유리',             pk:'back_wind',   zone:'rearwind' },
+  ];
+}
+
+/* ══ CAR SVG ══ */
+function getCarSVG() {
+  const areas = getAreas();
+  const isRemove = sel.film === 'remove';
+  const activeZones = new Set();
+  const zoneShade = {}; // zone → shade %
+  sel.areas.forEach(aid => {
+    const a = areas.find(x => x.id === aid);
+    if (a) {
+      activeZones.add(a.zone);
+      if (shadeByArea[aid]) zoneShade[a.zone] = shadeByArea[aid];
+    }
+  });
+  const aqw = sel.activeQW || [];
+  const TINT_OPA = {'5%':0.88,'15%':0.75,'20%':0.68,'35%':0.55,'40%':0.48,'50%':0.38,'70%':0.22};
+  // zFill: shade 있으면 어두운 색, 없으면 gold 하이라이트, 비활성은 base
+  const zFill = (z, base) => {
+    if (zoneShade[z]) return 'rgba(0,0,0,'+(TINT_OPA[zoneShade[z]]||0.5)+')';
+    if (activeZones.has(z)) return 'rgba(200,165,53,0.45)';
+    return base;
+  };
+  const zStroke = z => (activeZones.has(z) || zoneShade[z]) ? '#c8a535' : '#2a5878';
+  const zText = z => activeZones.has(z) || zoneShade[z];
+  // Quarter - shade from shadeByArea['qw_qfl'] etc
+  const qShade = id => shadeByArea['qw_'+id];
+  const qFill = id => {
+    if (qShade(id)) return 'rgba(0,0,0,'+(TINT_OPA[qShade(id)]||0.5)+')';
+    if (aqw.includes(id)) return 'rgba(200,165,53,0.45)';
+    return '#0d1e30';
+  };
+  const qStroke = id => (aqw.includes(id) || qShade(id)) ? '#c8a535' : '#2a5878';
+  const rearQrlClick = sel.film === 'remove' ? "clickQuarter('qrl')" : "toggleZone('allside')";
+  const rearQrrClick = sel.film === 'remove' ? "clickQuarter('qrr')" : "toggleZone('allside')";
+  // Remove 모드: Front/Rear는 frontdoors/rearwind로 개별 클릭
+  const frontZone = isRemove ? 'frontdoors' : 'allside';
+  const rearSideZone = isRemove ? 'allside_rear' : 'allside';
+  const rearWindZone = 'rearwind';
+
+  return `<svg viewBox="208 20 264 456" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width:70%;height:auto;display:block;margin:0 auto;">
+  <path d="M300 35 Q340 32 380 35 L408 40 L428 50 L440 65 L446 85 L448 130 L448 350 L446 390 L438 415 L424 428 L400 438 L340 442 L280 438 L256 428 L242 415 L234 390 L232 350 L232 130 L234 85 L240 65 L252 50 L272 40 Z" fill="#1e1e1c" stroke="#505050" stroke-width="2"/>
+  <path d="M305 52 Q340 49 375 52 L398 57 L414 67 L422 82 L426 105 L427 160 L427 330 L426 372 L420 398 L408 412 L388 420 L340 424 L292 420 L272 412 L260 398 L254 372 L253 330 L253 160 L254 105 L258 82 L266 67 L282 57 Z" fill="#252523" stroke="#3a3a38" stroke-width="1"/>
+  <path d="M282 57 L305 52 L375 52 L398 57 L414 67 L422 82 L258 82 L266 67 Z" fill="#1e1e1c" stroke="#3a3a38" stroke-width="1"/>
+  <line x1="340" y1="52" x2="340" y2="82" stroke="#2a2a28" stroke-width="1.5"/>
+  <path d="M264 72 Q340 68 416 72" fill="none" stroke="#2a2a28" stroke-width="1"/>
+  <path d="M258 370 L260 390 L272 410 L292 422 L340 426 L388 422 L408 410 L420 390 L422 370 Z" fill="#1e1e1c" stroke="#3a3a38" stroke-width="1"/>
+  <ellipse cx="232" cy="112" rx="12" ry="28" fill="#0a0a08" stroke="#404040" stroke-width="1.5"/>
+  <ellipse cx="232" cy="112" rx="7" ry="18" fill="#161614" stroke="#333" stroke-width="1"/>
+  <ellipse cx="448" cy="112" rx="12" ry="28" fill="#0a0a08" stroke="#404040" stroke-width="1.5"/>
+  <ellipse cx="448" cy="112" rx="7" ry="18" fill="#161614" stroke="#333" stroke-width="1"/>
+  <ellipse cx="232" cy="358" rx="12" ry="28" fill="#0a0a08" stroke="#404040" stroke-width="1.5"/>
+  <ellipse cx="232" cy="358" rx="7" ry="18" fill="#161614" stroke="#333" stroke-width="1"/>
+  <ellipse cx="448" cy="358" rx="12" ry="28" fill="#0a0a08" stroke="#404040" stroke-width="1.5"/>
+  <ellipse cx="448" cy="358" rx="7" ry="18" fill="#161614" stroke="#333" stroke-width="1"/>
+  <path d="M232 152 L216 149 L213 163 L232 165 Z" fill="#1a1a18" stroke="#3a3a38" stroke-width="1"/>
+  <path d="M448 152 L464 149 L467 163 L448 165 Z" fill="#1a1a18" stroke="#3a3a38" stroke-width="1"/>
+  <rect x="234" y="247" width="9" height="12" rx="1" fill="#141412"/>
+  <rect x="437" y="247" width="9" height="12" rx="1" fill="#141412"/>
+  <g style="cursor:pointer" onclick="toggleZone('frontwind')">
+    <path d="M268 88 L412 88 L420 110 L424 136 L256 136 L260 110 Z" fill="${zFill('frontwind','#0d1e30')}" stroke="${zStroke('frontwind')}" stroke-width="2"/>
+    <text x="340" y="116" text-anchor="middle" font-size="14" fill="${zText('frontwind')?'#c8a535':'#4a7aaa'}" font-family="sans-serif">Windshield${zoneShade['frontwind']?' '+zoneShade['frontwind']:''}</text>
+  </g>
+  <g style="cursor:pointer" onclick="toggleZone('sunvisor')">
+    <rect x="272" y="140" width="136" height="14" rx="3" fill="${zFill('sunvisor','#0a1520')}" stroke="${zStroke('sunvisor')}" stroke-width="1.5"/>
+    <text x="340" y="151" text-anchor="middle" font-size="10" fill="${zText('sunvisor')?'#c8a535':'#3a6080'}" font-family="sans-serif">Sun Visor${zoneShade['sunvisor']?' '+zoneShade['sunvisor']:''}</text>
+  </g>
+  <g style="cursor:pointer" onclick="toggleZone('sunroof')">
+    <rect x="295" y="195" width="90" height="65" rx="5" fill="${zFill('sunroof','#0d1e30')}" stroke="${zStroke('sunroof')}" stroke-width="2"/>
+    <text x="340" y="232" text-anchor="middle" font-size="13" fill="${zText('sunroof')?'#c8a535':'#4a7aaa'}" font-family="sans-serif">Sunroof${zoneShade['sunroof']?' '+zoneShade['sunroof']:''}</text>
+  </g>
+  <g style="cursor:pointer" onclick="toggleZone(sel.film==='remove'?'rm_fl':'frontdoors')">
+    <path d="M237 210 L251 175 L278 172 L278 249 L237 247 Z" fill="${zFill(sel.film==='remove'?'rm_fl':'frontdoors','#0d1e30')}" stroke="${zStroke(sel.film==='remove'?'rm_fl':'frontdoors')}" stroke-width="2"/>
+    <text x="256" y="214" text-anchor="middle" font-size="12" fill="${(zText('rm_fl')||zText('frontdoors'))?'#c8a535':'#4a7aaa'}" font-family="sans-serif">Front${zoneShade['rm_fl']||zoneShade['frontdoors']?' '+(zoneShade['rm_fl']||zoneShade['frontdoors']):''}</text>
+  </g>
+  <g style="cursor:pointer" onclick="toggleZone(sel.film==='remove'?'rm_fr':'frontdoors')">
+    <path d="M443 210 L429 175 L402 172 L402 249 L443 247 Z" fill="${zFill(sel.film==='remove'?'rm_fr':'frontdoors','#0d1e30')}" stroke="${zStroke(sel.film==='remove'?'rm_fr':'frontdoors')}" stroke-width="2"/>
+    <text x="424" y="214" text-anchor="middle" font-size="12" fill="${(zText('rm_fr')||zText('frontdoors'))?'#c8a535':'#4a7aaa'}" font-family="sans-serif">Front${zoneShade['rm_fr']||zoneShade['frontdoors']?' '+(zoneShade['rm_fr']||zoneShade['frontdoors']):''}</text>
+  </g>
+  <g style="cursor:pointer" onclick="toggleZone(sel.film==='remove'?'rm_rl':'allside')">
+    <path d="M237 257 L278 255 L278 332 L237 330 Z" fill="${zFill(sel.film==='remove'?'rm_rl':'allside','#0d1e30')}" stroke="${zStroke(sel.film==='remove'?'rm_rl':'allside')}" stroke-width="2"/>
+    <text x="257" y="297" text-anchor="middle" font-size="12" fill="${(zText('rm_rl')||zText('allside'))?'#c8a535':'#4a7aaa'}" font-family="sans-serif">Rear${zoneShade['rm_rl']||zoneShade['allside']?' '+(zoneShade['rm_rl']||zoneShade['allside']):''}</text>
+  </g>
+  <g style="cursor:pointer" onclick="toggleZone(sel.film==='remove'?'rm_rr':'allside')">
+    <path d="M443 257 L402 255 L402 332 L443 330 Z" fill="${zFill(sel.film==='remove'?'rm_rr':'allside','#0d1e30')}" stroke="${zStroke(sel.film==='remove'?'rm_rr':'allside')}" stroke-width="2"/>
+    <text x="423" y="297" text-anchor="middle" font-size="12" fill="${(zText('rm_rr')||zText('allside'))?'#c8a535':'#4a7aaa'}" font-family="sans-serif">Rear${zoneShade['rm_rr']||zoneShade['allside']?' '+(zoneShade['rm_rr']||zoneShade['allside']):''}</text>
+  </g>
+  <g style="cursor:pointer" onclick="toggleZone(sel.film==='remove'?'rearwind':'allside')">
+    <path d="M268 400 L412 400 L420 378 L424 354 L256 354 L260 378 Z" fill="${zFill(sel.film==='remove'?'rearwind':'allside','#0d1e30')}" stroke="${zStroke(sel.film==='remove'?'rearwind':'allside')}" stroke-width="2"/>
+    <text x="340" y="382" text-anchor="middle" font-size="13" fill="${(zText('rearwind')||zText('allside'))?'#c8a535':'#4a7aaa'}" font-family="sans-serif">Rear Glass${zoneShade['rearwind']||zoneShade['allside']?' '+(zoneShade['rearwind']||zoneShade['allside']):''}</text>
+  </g>
+  <g style="cursor:pointer" onclick="clickQuarter('qfl')">
+    <path d="M259 148 L272 148 L272 172 L251 175 L247 162 Z" fill="${qFill('qfl')}" stroke="${qStroke('qfl')}" stroke-width="1.5"/>
+    <text x="261" y="165" text-anchor="middle" font-size="8" fill="${qShade('qfl')?'#c8a535':'transparent'}" font-family="sans-serif">${qShade('qfl')||''}</text>
+  </g>
+  <g style="cursor:pointer" onclick="clickQuarter('qfr')">
+    <path d="M421 148 L408 148 L408 172 L429 175 L433 162 Z" fill="${qFill('qfr')}" stroke="${qStroke('qfr')}" stroke-width="1.5"/>
+    <text x="420" y="165" text-anchor="middle" font-size="8" fill="${qShade('qfr')?'#c8a535':'transparent'}" font-family="sans-serif">${qShade('qfr')||''}</text>
+  </g>
+  <g style="cursor:pointer" onclick="${rearQrlClick}">
+    <path d="M238 336 L272 334 L272 347 L239 349 Z" fill="${sel.film==='remove'?qFill('qrl'):zFill('allside','#0d1e30')}" stroke="${sel.film==='remove'?qStroke('qrl'):zStroke('allside')}" stroke-width="1.5"/>
+  </g>
+  <g style="cursor:pointer" onclick="${rearQrrClick}">
+    <path d="M442 336 L408 334 L408 347 L441 349 Z" fill="${sel.film==='remove'?qFill('qrr'):zFill('allside','#0d1e30')}" stroke="${sel.film==='remove'?qStroke('qrr'):zStroke('allside')}" stroke-width="1.5"/>
+  </g>
+  <text x="340" y="348" text-anchor="middle" font-size="12" fill="${aqw.length>0?'#c8a535':'#4a6080'}" font-family="sans-serif">Quarter ${sel.film==='remove'&&aqw.length>0?'('+aqw.length+')':''}</text>
+  <text x="340" y="462" text-anchor="middle" font-size="13" fill="#5a5a58" font-family="sans-serif">↓ Scroll for pricing</text>
+  </svg>`;
+}
+
+/* ══ QUARTER WINDOW ══ */
+function clickQuarter(id) {
+  if (!sel.activeQW) sel.activeQW = [];
+  // Remove 모드면 개별 클릭
+  if (sel.film === 'remove') {
+    if (sel.activeQW.includes(id)) {
+      sel.activeQW = sel.activeQW.filter(x => x !== id);
+      delete shadeByArea['qw_'+id];
+    } else {
+      sel.activeQW.push(id);
+      openShadePopup('qw_'+id);
+    }
+  } else {
+    // 일반 필름: Front 쪽유리는 FL/FR 쌍으로, 팝업 한번만
+    if (id === 'qfl' || id === 'qfr') {
+      // 이미 둘 다 선택되어있으면 둘 다 해제
+      if (sel.activeQW.includes('qfl') && sel.activeQW.includes('qfr')) {
+        sel.activeQW = sel.activeQW.filter(x => x !== 'qfl' && x !== 'qfr');
+        delete shadeByArea['qw_qfl'];
+        delete shadeByArea['qw_qfr'];
+      } else {
+        // 색 팝업 열기 (qw_pair로 표시)
+        openShadePopup('qw_pair');
+        return;
+      }
+    }
+  }
+  sel.qty = sel.activeQW.length;
+  const areas = getAreas();
+  const a = areas.find(x => x.isQty);
+  if (a) {
+    sel.areas = sel.areas.filter(x => x !== a.id);
+    if (sel.qty > 0) sel.areas.push(a.id);
+  }
+  renderStep2();
+}
+
+/* ══ TOGGLE ZONE ══ */
+function toggleZone(zone) {
+  const areas = getAreas();
+  const a = areas.find(x => x.zone === zone);
+  if (!a) return;
+  const ceramicFilms = ['m2','ir3m','crystalline','remove'];
+  if (a.needsCeramic && !ceramicFilms.includes(sel.film)) return;
+  if (gp(a.pk) === null) return;
+  // SVG 클릭시 색 팝업 열기
+  openShadePopup(a.id);
+}
+
+/* ══ VEHICLE FORM ══ */
+/* ══ MAKE / MODEL BUTTONS ══ */
+
+window.MODELS_DATA = {"Acura": ["ILX", "TLX", "RLX", "MDX", "RDX", "ZDX", "Integra", "Other"], "Audi": ["A3", "A4", "A5", "A6", "A7", "A8", "Q3", "Q4", "Q5", "Q7", "Q8", "e-tron", "TT", "R8", "Other"], "BMW": ["2 Series", "3 Series", "4 Series", "5 Series", "7 Series", "8 Series", "X1", "X2", "X3", "X4", "X5", "X6", "X7", "Z4", "i3", "i4", "i7", "iX", "Other"], "Buick": ["Encore", "Encore GX", "Envision", "Enclave", "Other"], "Cadillac": ["CT4", "CT5", "XT4", "XT5", "XT6", "Escalade", "Lyriq", "Other"], "Chevrolet": ["Spark", "Trax", "Trailblazer", "Equinox", "Blazer", "Traverse", "Tahoe", "Suburban", "Colorado", "Silverado 1500", "Silverado 2500", "Corvette", "Camaro", "Malibu", "Other"], "Chrysler": ["300", "Pacifica", "Voyager", "Other"], "Dodge": ["Challenger", "Charger", "Durango", "Hornet", "Other"], "Ford": ["Mustang", "Mustang Mach-E", "F-150", "F-250", "F-350", "Bronco", "Bronco Sport", "Explorer", "Expedition", "Edge", "Escape", "Maverick", "Ranger", "Other"], "Genesis": ["G70", "G80", "G90", "GV70", "GV80", "GV60", "Other"], "GMC": ["Terrain", "Acadia", "Yukon", "Yukon XL", "Canyon", "Sierra 1500", "Sierra 2500", "Hummer EV", "Other"], "Honda": ["Civic", "Accord", "Insight", "HR-V", "CR-V", "Pilot", "Passport", "Ridgeline", "Odyssey", "Other"], "Hyundai": ["Elantra", "Sonata", "Accent", "Venue", "Kona", "Tucson", "Santa Fe", "Palisade", "Ioniq 5", "Ioniq 6", "Other"], "Infiniti": ["Q50", "Q60", "QX50", "QX55", "QX60", "QX80", "Other"], "Jeep": ["Renegade", "Compass", "Cherokee", "Grand Cherokee", "Wrangler", "Gladiator", "Wagoneer", "Other"], "Kia": ["Rio", "Forte", "K5", "Stinger", "Soul", "Seltos", "Sportage", "Sorento", "Telluride", "Carnival", "EV6", "EV9", "Other"], "Lexus": ["IS", "ES", "GS", "LS", "UX", "NX", "RX", "GX", "LX", "RC", "LC", "RZ", "Other"], "Lincoln": ["Corsair", "Nautilus", "Aviator", "Navigator", "Other"], "Mazda": ["Mazda3", "Mazda6", "CX-30", "CX-50", "CX-5", "CX-70", "CX-90", "MX-5 Miata", "Other"], "Mercedes": ["A-Class", "C-Class", "E-Class", "S-Class", "CLA", "GLA", "GLB", "GLC", "GLE", "GLS", "G-Class", "EQB", "EQE", "EQS", "Other"], "Mitsubishi": ["Mirage", "Eclipse Cross", "Outlander", "Outlander Sport", "Other"], "Nissan": ["Versa", "Sentra", "Altima", "Maxima", "Leaf", "Ariya", "Kicks", "Rogue", "Murano", "Pathfinder", "Armada", "Frontier", "Titan", "Other"], "Porsche": ["911", "Taycan", "Panamera", "Macan", "Cayenne", "Other"], "RAM": ["1500", "2500", "3500", "ProMaster", "Other"], "Rivian": ["R1T", "R1S", "Other"], "Subaru": ["Impreza", "WRX", "Legacy", "BRZ", "Crosstrek", "Forester", "Outback", "Ascent", "Solterra", "Other"], "Tesla": ["Model 3", "Model S", "Model X", "Model Y", "Cybertruck", "Other"], "Toyota": ["Corolla", "Camry", "Avalon", "Prius", "GR86", "Supra", "C-HR", "RAV4", "Venza", "Highlander", "4Runner", "Sequoia", "Land Cruiser", "Tacoma", "Tundra", "Sienna", "Crown", "bZ4X", "Other"], "Volkswagen": ["Golf", "GTI", "Jetta", "Passat", "Arteon", "Taos", "Tiguan", "Atlas", "ID.4", "Other"], "Volvo": ["S60", "S90", "V60", "V90", "XC40", "XC60", "XC90", "C40", "Other"]};
+function onMakeSelectChange(make) {
+  document.getElementById('cMake').value = make;
+  var s = document.getElementById('cModelSelect');
+  s.innerHTML = '<option value="">Select Model</option>';
+  if (make && window.MODELS_DATA[make]) {
+    window.MODELS_DATA[make].forEach(function(m) {
+      var o = document.createElement('option'); o.value=m; o.textContent=m; s.appendChild(o);
+    });
+    s.disabled = false;
+    s.selectedIndex = 0;
+  } else {
+    s.innerHTML = '<option value="">Select Make First</option>';
+    s.disabled = true;
+  }
+  document.getElementById('cModel').value = ''; checkForm();
+}
+function onModelSelectChange(m) { document.getElementById('cModel').value = m; checkForm(); }
+
+// iOS touchend 이벤트 위임 - div onclick 문제 해결
+document.addEventListener('touchend', function(e) {
+  var el = e.target;
+  var row = el.closest ? el.closest('.area-row') : null;
+  if (row && !row.classList.contains('disabled')) {
+    var oc = row.getAttribute('onclick');
+    if (oc) { e.preventDefault(); e.stopPropagation(); try{eval(oc);}catch(er){} return; }
+  }
+  var vc = el.closest ? el.closest('.veh-card') : null;
+  if (vc) { var oc=vc.getAttribute('onclick'); if(oc){e.preventDefault();try{eval(oc);}catch(er){}return;} }
+  var fc = el.closest ? el.closest('.film-card') : null;
+  if (fc && !fc.classList.contains('disabled')) { var oc=fc.getAttribute('onclick'); if(oc){e.preventDefault();try{eval(oc);}catch(er){}return;} }
+  var tc = el.closest ? el.closest('.tm-card') : null;
+  if (tc) { var oc=tc.getAttribute('onclick'); if(oc){e.preventDefault();try{eval(oc);}catch(er){}return;} }
+  // SVG zone 클릭
+  var sg = el.closest ? el.closest('g[onclick]') : null;
+  if (sg) { var oc=sg.getAttribute('onclick'); if(oc){e.preventDefault();try{eval(oc);}catch(er){}return;} }
+}, false);
+
+function toggleMakeGrid() {
+  var g = document.getElementById('makeGrid');
+  g.style.display = g.style.display === 'none' ? 'block' : 'none';
+}
+
+function toggleModelGrid() {
+  var make = document.getElementById('cMake').value;
+  if (!make) return;
+  var g = document.getElementById('modelGrid');
+  g.style.display = g.style.display === 'none' ? 'block' : 'none';
+}
+
+function selMakeBtn(make) {
+  document.getElementById('cMake').value = make;
+  document.getElementById('makeDisplay').textContent = make + ' ✓';
+  document.getElementById('makeDisplay').style.color = 'var(--gold)';
+  document.getElementById('makeGrid').style.display = 'none';
+  // Highlight selected make button
+  document.querySelectorAll('#makeGrid .vbtn').forEach(function(b) {
+    b.classList.toggle('selected', b.textContent === make + ' ✓' || b.textContent === make);
+  });
+  // Show model grid for this make
+  var mid = make.replace(/ /g,'_').replace(/-/g,'_');
+  document.querySelectorAll('[id^="mb_"]').forEach(function(d){ d.style.display='none'; });
+  var mb = document.getElementById('mb_' + mid);
+  if (mb) mb.style.display = 'block';
+  document.getElementById('modelGrid').style.display = 'block';
+  document.getElementById('modelDisplay').textContent = 'Select ' + make + ' Model ▼';
+  document.getElementById('modelDisplay').style.color = 'var(--gray)';
+  document.getElementById('cModel').value = '';
+  checkForm();
+}
+
+function selModelBtn(model) {
+  document.getElementById('cModel').value = model;
+  document.getElementById('modelDisplay').textContent = model + ' ✓';
+  document.getElementById('modelDisplay').style.color = 'var(--gold)';
+  document.getElementById('modelGrid').style.display = 'none';
+  checkForm();
+}
+
+function onMakeChange(make) {
+  if (make) selMakeBtn(make);
+}
+
+function getModelValue() {
+  var v=document.getElementById('cModel').value;
+  if(!v){var ms=document.getElementById('cModelSelect');if(ms)v=ms.value||'';}
+  return v;
+}
+
+/* ══ LOCATION ══ */
+const TAX_RATES = {'West Covina': 0.0975,'Chino':0.0875,'Irvine':0.0775,'Fullerton':0.0775};
+const BIZ_LICENSE = {
+  'West Covina': 'City of West Covina License No. 03031317',
+  'Chino':       'City of Chino License No. 47679',
+  'Irvine':      '',
+  'Fullerton':   'City of Fullerton Registration No. 588067'
+};
+const LOC_ADDRESS = {
+  'West Covina': '225 N Azusa Ave, West Covina CA 91791 · (626) 788-7770 · americawindowtint@gmail.com',
+  'Chino':       '12913 Central Ave, Chino CA 91710 · (909) 270-3719 · americatintchino@gmail.com',
+  'Irvine':      '111 Spica, Irvine CA 92618 · (949) 940-6612 · irvinetinting@gmail.com',
+  'Fullerton':   '1941 W Commonwealth Ave #B, Fullerton CA 92833 · (909) 954-9886 · americatintfullerton@gmail.com'
+};
+
+function getTaxRate() {
+  const loc = document.getElementById('cLocation').value;
+  return TAX_RATES[loc] || 0.0975;
+}
+
+function selLocation(loc) {
+  document.getElementById('cLocation').value = loc;
+  const ids = ['loc_wc','loc_ch','loc_ir','loc_fl'];
+  ids.forEach(function(id) {
+    var b = document.getElementById(id);
+    if (b) {
+      b.style.background = 'var(--card)';
+      b.style.borderColor = 'var(--border)';
+      b.style.color = 'var(--gray-lt)';
+    }
+  });
+  const map = {'West Covina':'loc_wc','Chino':'loc_ch','Irvine':'loc_ir','Fullerton':'loc_fl'};
+  var selectedBtn = document.getElementById(map[loc]);
+  if (selectedBtn) {
+    selectedBtn.style.background = 'rgba(200,165,53,0.15)';
+    selectedBtn.style.borderColor = 'var(--gold)';
+    selectedBtn.style.color = 'var(--gold)';
+  }
+  checkForm();
+  if (document.getElementById('totalAmt')) renderStep2();
+  updateInvoiceNum();
+}
+
+
+/* ══ TINT SHADE ══ */
+const TINT_OPTS = ['5%','15%','20%','35%','40%','50%','70%'];
+const TINT_OPACITY = {'5%':0.92,'15%':0.80,'20%':0.72,'35%':0.58,'40%':0.52,'50%':0.42,'70%':0.25};
+const TINT_ZONES = {
+  front:       ['tw_front_L','tw_front_R','tw_qfl','tw_qfr'],
+  rear:        ['tw_rear_L','tw_rear_R'],
+  frontWind:   ['tw_frontWind'],
+  rearWind:    ['tw_rearWind'],
+  rearQuarter: ['tw_qrl','tw_qrr'],
+  sunvisor:    ['tw_sunvisor'],
+  sunroof:     ['tw_sunroof']
+};
+const TINT_LABELS = {front:'tt_front', rear:'tt_rear', frontWind:'tt_frontWind', rearWind:'tt_rearWind', rearQuarter:'tt_rearQuarter', sunvisor:'tt_sunvisor', sunroof:'tt_sunroof'};
+const TINT_NAMES = {front:'Front', rear:'Rear', frontWind:'F.Shield', rearWind:'R.Shield', rearQuarter:'R.Quarter', sunvisor:'Sun Visor', sunroof:'Sunroof'};
+
+var currentTintKey = null;
+
+var ZONE_TO_AREA = {
+  all: 'all',
+  front: null,
+  rear: null,
+  frontWind: 'fwind',
+  rearWind: null,
+  frontQuarter: 'qw',
+  rearQuarter: null,
+  sunvisor: 'sunvisor',
+  sunroof: 'sunroof'
+};
+
+function openTintPopup(){}
+
+function clearTintShade() {
+  if (!currentTintKey) return;
+  sel.tint[currentTintKey] = null;
+  var areaId = ZONE_TO_AREA[currentTintKey];
+  if (areaId) {
+    sel.areas = sel.areas.filter(function(x){ return x !== areaId; });
+    if (areaId === 'qw') { sel.activeQW = []; sel.qty = 0; }
+  }
+  updateTintDiagram();
+  updateTintSummary();
+  calcTotal();
+  checkBtn1();
+  closeTintPopup();
+}
+
+function closeTintPopup(){}
+
+function selectTintShade(val) {
+  if (!currentTintKey) return;
+  sel.tint[currentTintKey] = val;
+
+  // 해당 구역 area 자동 선택
+  var areaId = ZONE_TO_AREA[currentTintKey];
+  // front/rear: 패키지 모드면 색상만, 아니면 개별 가격
+  if (!isPackageMode) {
+    if (currentTintKey === 'front') {
+      var areas0 = getAreas();
+      var a0 = areas0.find(function(a){ return a.id === '2front'; });
+      if (a0 && gp(a0.pk) !== null && !sel.areas.includes('2front')) sel.areas.push('2front');
+    }
+    if (currentTintKey === 'rear') {
+      var areas0b = getAreas();
+      var a0b = areas0b.find(function(a){ return a.id === 'all'; });
+      if (a0b && gp(a0b.pk) !== null && !sel.areas.includes('all')) sel.areas.push('all');
+    }
+    if (currentTintKey === 'rearWind') {
+      var areas0c = getAreas();
+      var a0c = areas0c.find(function(a){ return a.id === 'rearwind'; });
+      if (a0c && gp(a0c.pk) !== null && !sel.areas.includes('rearwind')) sel.areas.push('rearwind');
+    }
+  }
+  if (areaId && currentTintKey !== 'rearQuarter' && currentTintKey !== 'rearWind' && currentTintKey !== 'front' && currentTintKey !== 'rear') {
+    var areas = getAreas();
+    var area = areas.find(function(a){ return a.id === areaId; });
+    if (area && gp(area.pk) !== null) {
+      if (!sel.areas.includes(areaId)) sel.areas.push(areaId);
+      if (currentTintKey === 'frontQuarter') {
+        var aqwF = sel.activeQW || [];
+        if (!aqwF.includes('qfl')) aqwF.push('qfl');
+        if (!aqwF.includes('qfr')) aqwF.push('qfr');
+        sel.activeQW = aqwF;
+        sel.qty = sel.activeQW.length;
+      }
+    }
+  }
+  // rear(뒷자리) 또는 rearWind 선택시 rearQuarter 색상만 같이 변경 (가격 제외)
+  if (currentTintKey === 'rear' || currentTintKey === 'rearWind') {
+    sel.tint['rearQuarter'] = val;
+  }
+
+
+  updateTintDiagram();
+  updateTintSummary();
+  calcTotal();
+  checkBtn1();
+  closeTintPopup();
+}
+
+function calcTotal() {
+  var areas = getAreas();
+  var total = 0;
+  sel.areas.forEach(function(aid) {
+    var a = areas.find(function(x){ return x.id === aid; });
+    if (!a) return;
+    // Standard Package 모드: Front 2 Doors는 All Side & Back에 포함 (가격 중복 방지)
+    if (sel.standardPackage && aid === '2front') return;
+    var p = gp(a.pk);
+    if (p === null) return;
+    total += a.isQty ? p * (sel.qty||0) : p;
+  });
+  var noteEl = document.getElementById('noteAmt');
+  var note = noteEl ? Math.max(0, parseFloat(noteEl.value)||0) : 0;
+  var taxRate = getTaxRate();
+  var tax = Math.round(total * taxRate * 100) / 100;
+  var grandBeforeNote = Math.round((total + tax) * 100) / 100;
+  var grand = Math.max(0, Math.round((grandBeforeNote - note) * 100) / 100);
+  var taxPct = (taxRate*100).toFixed(2) + '%';
+  var s = document.getElementById('subAmt');
+  var t = document.getElementById('taxAmt');
+  var g = document.getElementById('totalAmt');
+  var tl = document.getElementById('taxLabel');
+  if (s) s.textContent = '$' + total.toFixed(2);
+  if (t) t.textContent = '$' + tax.toFixed(2);
+  if (g) g.textContent = '$' + grand.toFixed(2);
+  if (tl) tl.textContent = 'Sales Tax (' + taxPct + ')';
+}
+
+function updateTintDiagram() {
+  // 앞 쪽유리 글씨 (front와 동일)
+  ['tt_qfl','tt_qfr'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) { el.textContent = sel.tint.frontQuarter ? sel.tint.frontQuarter : ''; el.setAttribute('fill', sel.tint.frontQuarter ? '#c8a535' : '#4a7aaa'); }
+  });
+  // 뒤 쪽유리 색상+글씨 (rearQuarter)
+  ['tw_qrl','tw_qrr'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var v = sel.tint.rearQuarter;
+    var opacity = v ? TINT_OPACITY[v] : 0;
+    el.setAttribute('fill', v ? 'rgba(0,0,0,'+opacity+')' : '#0d1e30');
+    el.setAttribute('stroke', v ? '#c8a535' : '#2a5878');
+  });
+  ['tt_qrl','tt_qrr'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) { el.textContent = sel.tint.rearQuarter ? sel.tint.rearQuarter : ''; el.setAttribute('fill', sel.tint.rearQuarter ? '#c8a535' : '#4a7aaa'); }
+  });
+  Object.keys(TINT_ZONES).forEach(function(key) {
+    var val = sel.tint[key];
+    var opacity = val ? TINT_OPACITY[val] : 0;
+    var fill = val ? 'rgba(0,0,0,'+opacity+')' : '#0d1e30';
+    var stroke = val ? '#c8a535' : '#2a5878';
+    TINT_ZONES[key].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) { el.setAttribute('fill', fill); el.setAttribute('stroke', stroke); }
+    });
+    var lblId = TINT_LABELS[key];
+    if (lblId) {
+      var lbl = document.getElementById(lblId);
+      if (lbl) {
+        lbl.textContent = val ? val : TINT_NAMES[key];
+        lbl.setAttribute('fill', val ? '#c8a535' : '#4a7aaa');
+      }
+    }
+  });
+}
+
+function updateTintSummary() { if(!document.getElementById("tintSummary"))return;
+  var keys = ['front','rear','frontWind','rearWind','rearQuarter','sunvisor','sunroof'];
+  var names = ['Front','Rear','F.Windshield','R.Windshield','R.Quarter','Sun Visor','Sunroof'];
+  document.getElementById('tintSummary').innerHTML = keys.map(function(k,i) {
+    var v = sel.tint[k];
+    return '<div style="background:#1a1a18;border:1px solid '+(v?'#c8a535':'#2e2e2a')+';border-radius:6px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;">' +
+      '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:12px;color:#7a7870;">'+names[i]+'</span>' +
+      '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:18px;color:'+(v?'#c8a535':'#3a3a38')+';">'+(v||'—')+'</span>' +
+      '</div>';
+  }).join('');
+}
+
+
+/* ══ PAYMENT SUMMARY ══ */
+function updatePaymentSummary() {
+  var card = parseFloat(document.getElementById('cardAmt').value)||0;
+  var cash = parseFloat(document.getElementById('cashAmt').value)||0;
+  var paid = card + cash;
+  var totalEl = document.getElementById('totalAmt');
+  var total = totalEl ? parseFloat(totalEl.textContent.replace('$','').replace(',',''))||0 : 0;
+  var el = document.getElementById('paymentCheck');
+  if (!el) return;
+  if (paid === 0) { el.textContent = ''; return; }
+  var diff = paid - total;
+  if (Math.abs(diff) < 0.5) {
+    el.innerHTML = '<span style="color:#5aaa5a;">✓ Paid $'+paid.toLocaleString()+' — Balanced</span>';
+  } else if (diff > 0) {
+    el.innerHTML = '<span style="color:#c8a535;">Paid $'+paid.toLocaleString()+' — Change $'+diff.toFixed(0)+'</span>';
+  } else {
+    el.innerHTML = '<span style="color:#e05050;">Paid $'+paid.toLocaleString()+' — Remaining $'+Math.abs(diff).toFixed(0)+'</span>';
+  }
+}
+
+/* ══ PACKAGES ══ */
+var currentShadeTarget = null;
+var shadeByArea = {};
+
+function applyPackage(type) {
+  if (type === 'standard') {
+    // Remove 모드: 색 필요 없이 All + Front 2 Doors 바로 선택
+    if (sel.film === 'remove') {
+      if (!sel.areas.includes('all')) sel.areas.push('all');
+      if (!sel.areas.includes('2front')) sel.areas.push('2front');
+      sel.standardPackage = true;
+      renderStep2();
+      return;
+    }
+    currentShadeTarget = 'all_package';
+    document.getElementById('popupTitle').textContent = 'STANDARD PACKAGE — Select Shade';
+    renderShadeButtons();
+    document.getElementById('tintPopup').style.display = 'block';
+    document.getElementById('tintOverlay').style.display = 'block';
+  }
+}
+
+function openShadePopup(areaId) {
+  // Remove 모드: 색 팝업 건너뛰고 바로 창 선택 토글
+  if (sel.film === 'remove') {
+    if (areaId === 'qw_pair') {
+      // 앞 쪽유리 둘 다 토글
+      if (sel.activeQW.includes('qfl') && sel.activeQW.includes('qfr')) {
+        sel.activeQW = sel.activeQW.filter(function(x){return x !== 'qfl' && x !== 'qfr';});
+      } else {
+        if (!sel.activeQW.includes('qfl')) sel.activeQW.push('qfl');
+        if (!sel.activeQW.includes('qfr')) sel.activeQW.push('qfr');
+      }
+      sel.qty = sel.activeQW.length;
+      if (sel.qty > 0) {
+        if (!sel.areas.includes('qw')) sel.areas.push('qw');
+      } else {
+        sel.areas = sel.areas.filter(function(x){return x !== 'qw';});
+      }
+    } else {
+      // 일반 창 토글
+      if (sel.areas.includes(areaId)) {
+        sel.areas = sel.areas.filter(function(x){return x !== areaId;});
+      } else {
+        sel.areas.push(areaId);
+      }
+    }
+    renderStep2();
+    return;
+  }
+  // 일반 필름: 색 팝업 열기
+  currentShadeTarget = areaId;
+  var labels = {'all':'ALL SIDE & BACK','2front':'FRONT 2 DOORS','fwind':'FRONT WINDSHIELD','rearwind':'REAR WINDSHIELD','sunroof':'SUNROOF','sunvisor':'SUN VISOR','qw':'QUARTER WINDOW','qw_pair':'FRONT QUARTER WINDOWS (L+R)','qw_qfl':'FRONT LEFT QUARTER','qw_qfr':'FRONT RIGHT QUARTER','qw_qrl':'REAR LEFT QUARTER','qw_qrr':'REAR RIGHT QUARTER','all_package':'STANDARD PACKAGE',
+    'rm_fl':'FRONT LEFT','rm_fr':'FRONT RIGHT','rm_rl':'REAR LEFT','rm_rr':'REAR RIGHT'};
+  document.getElementById('popupTitle').textContent = (labels[areaId]||areaId) + ' — Select Shade';
+  renderShadeButtons();
+  document.getElementById('tintPopup').style.display = 'block';
+  document.getElementById('tintOverlay').style.display = 'block';
+}
+
+function renderShadeButtons() {
+  var opts = ['5%','15%','20%','35%','40%','50%','70%'];
+  var cur = shadeByArea[currentShadeTarget];
+  document.getElementById('popupBtns').innerHTML = opts.map(function(v) {
+    var sel = v === cur;
+    return '<button type="button" onclick="selectShade(\''+v+'\')" style="padding:12px 18px;font-family:\'Barlow Condensed\',sans-serif;font-size:16px;font-weight:700;border-radius:6px;cursor:pointer;min-width:60px;border:1px solid '+(sel?'#c8a535':'#2e2e2a')+';background:'+(sel?'rgba(200,165,53,0.2)':'#0d0d0c')+';color:'+(sel?'#c8a535':'#f0ede6')+';">'+v+'</button>';
+  }).join('');
+}
+
+function selectShade(val) {
+  if (!currentShadeTarget) return;
+  if (currentShadeTarget === 'all_package') {
+    // STANDARD: All Side & Back + Front 2 Doors 같이 선택 (가격은 All Side & Back만)
+    if (!sel.areas.includes('all')) sel.areas.push('all');
+    if (!sel.areas.includes('2front')) sel.areas.push('2front');
+    shadeByArea['all'] = val;
+    shadeByArea['2front'] = val;
+    sel.standardPackage = true; // 통합 가격 표시 플래그
+  } else if (currentShadeTarget === 'qw_pair') {
+    if (!sel.activeQW.includes('qfl')) sel.activeQW.push('qfl');
+    if (!sel.activeQW.includes('qfr')) sel.activeQW.push('qfr');
+    sel.qty = sel.activeQW.length;
+    if (!sel.areas.includes('qw')) sel.areas.push('qw');
+    shadeByArea['qw_qfl'] = val;
+    shadeByArea['qw_qfr'] = val;
+  } else {
+    if (!sel.areas.includes(currentShadeTarget)) sel.areas.push(currentShadeTarget);
+    shadeByArea[currentShadeTarget] = val;
+  }
+  closePopup();
+  renderStep2();
+}
+
+function clearShade() {
+  if (!currentShadeTarget) return;
+  if (currentShadeTarget === 'all_package') {
+    sel.areas = sel.areas.filter(function(x){return x !== 'all' && x !== '2front';});
+    delete shadeByArea['all'];
+    delete shadeByArea['2front'];
+    sel.standardPackage = false;
+    closePopup();
+    renderStep2();
+    return;
+  }
+  if (currentShadeTarget === 'qw_pair') {
+    sel.activeQW = sel.activeQW.filter(function(x){return x !== 'qfl' && x !== 'qfr';});
+    sel.qty = sel.activeQW.length;
+    delete shadeByArea['qw_qfl'];
+    delete shadeByArea['qw_qfr'];
+    if (sel.qty === 0) sel.areas = sel.areas.filter(function(x){return x !== 'qw';});
+  } else {
+    sel.areas = sel.areas.filter(function(x){return x !== currentShadeTarget;});
+    delete shadeByArea[currentShadeTarget];
+  }
+  closePopup();
+  renderStep2();
+}
+
+function closePopup() {
+  document.getElementById('tintPopup').style.display = 'none';
+  document.getElementById('tintOverlay').style.display = 'none';
+  currentShadeTarget = null;
+}
+
+function clearAllWindows() {
+  sel.areas = [];
+  sel.activeQW = [];
+  sel.qty = 0;
+  shadeByArea = {};
+  sel.standardPackage = false;
+  renderStep2();
+}
+
+var currentPackageKeys = [];
+var isPackageMode = false;
+
+function selectPackageShade(val) {
+  isPackageMode = true;
+  // Standard = All Side & Back 하나로
+  sel.tint['front'] = val;
+  sel.tint['rear'] = val;
+  sel.tint['rearWind'] = val;
+  sel.tint['rearQuarter'] = val;
+
+  // area 완전 초기화 후 all만 선택 (차량/필름 선택 여부 상관없이)
+  sel.areas = ['all'];
+  sel.activeQW = [];
+  sel.qty = 0;
+
+  updateTintDiagram();
+  updateTintSummary();
+  calcTotal();
+  checkBtn1();
+  closeTintPopup();
+}
+
+function clearAllTint() {
+  isPackageMode = false;
+  Object.keys(sel.tint).forEach(function(k){ sel.tint[k] = null; });
+  sel.areas = [];
+  sel.activeQW = [];
+  sel.qty = 0;
+  updateTintDiagram();
+  updateTintSummary();
+  calcTotal();
+  checkBtn1();
+}
+
+/* ══ INVOICE NUMBER ══ */
+function generateInvoiceNum(location) {
+  const locMap = {'West Covina':'WC','Chino':'CH','Irvine':'IR','Fullerton':'FL'};
+  const prefix = locMap[location] || 'AT';
+  const now = new Date();
+  const yy = String(now.getFullYear()).slice(2);
+  const mm = String(now.getMonth()+1).padStart(2,'0');
+  const dd = String(now.getDate()).padStart(2,'0');
+  const dateStr = yy + mm + dd;
+  const storageKey = 'inv_' + prefix + '_' + dateStr;
+  var count = parseInt(localStorage.getItem(storageKey) || '0') + 1;
+  localStorage.setItem(storageKey, count);
+  return prefix + '-' + dateStr + '-' + String(count).padStart(3,'0');
+}
+
+function updateInvoiceNum() {
+  var loc = document.getElementById('cLocation').value;
+  if (!loc) return;
+  var num = generateInvoiceNum(loc);
+  var el = document.getElementById('invoiceNum');
+  if (el) el.textContent = num;
+  return num;
+}
+
+/* ══ PRINT ══ */
+function printReceipt() {
+  var card = document.getElementById('confCard');
+  var sub = document.getElementById('confSub');
+  if (!card) return;
+  var loc = document.getElementById('cLocation').value;
+  var licLine = BIZ_LICENSE[loc] || '';
+  var addrLine = LOC_ADDRESS[loc] || '';
+  var cardHTML = card.innerHTML;
+
+  var old = document.getElementById('printFrame');
+  if (old) old.parentNode.removeChild(old);
+
+  // Format date to English: 2026-04-16 → April 16, 2026
+  function fmtDate(d) {
+    if (!d) return '';
+    var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    var parts = d.split('-');
+    if (parts.length !== 3) return d;
+    return months[parseInt(parts[1])-1] + ' ' + parseInt(parts[2]) + ', ' + parts[0];
+  }
+
+  var iframe = document.createElement('iframe');
+  iframe.id = 'printFrame';
+  iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:900px;height:1200px;border:none;';
+  document.body.appendChild(iframe);
+
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>America Tint Receipt</title><style>'
+    + '@page { size: letter; margin: 14mm 16mm; margin-top: 10mm; }'
+    + '* { box-sizing: border-box; margin: 0; padding: 0; }'
+    + 'body { font-family: Arial, sans-serif; font-size: 11px; color: #111; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }'
+
+    /* HEADER */
+    + '.hdr { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 12px; border-bottom: 3px solid #b8960f; margin-bottom: 14px; }'
+    + '.hdr-left h1 { font-family: Arial Black, Arial, sans-serif; font-size: 26px; font-weight: 900; letter-spacing: 3px; color: #111; line-height: 1; }'
+    + '.hdr-left h1 span { color: #b8960f; }'
+    + '.hdr-left .tagline { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: #888; margin-top: 3px; }'
+    + '.hdr-right { text-align: right; }'
+    + '.hdr-right .inv-num { font-size: 18px; font-weight: 700; color: #b8960f; letter-spacing: 1px; }'
+    + '.hdr-right .inv-label { font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: #aaa; }'
+    + '.hdr-right .loc-name { font-size: 11px; font-weight: 700; color: #111; margin-top: 6px; }'
+    + '.hdr-right .loc-addr { font-size: 9px; color: #666; margin-top: 2px; line-height: 1.5; }'
+
+    /* GOLD DIVIDER */
+    + '.gold-bar { height: 2px; background: linear-gradient(90deg,#b8960f,#e8c94a,#b8960f); margin: 0 0 14px; border-radius: 1px; }'
+
+    /* SECTION TITLE */
+    + '.sec-title { font-size: 8px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: #b8960f; margin: 14px 0 6px; border-bottom: 0.5px solid #e8e0c8; padding-bottom: 4px; }'
+
+    /* TWO COLUMN INFO */
+    + '.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px; margin-bottom: 4px; }'
+    + '.info-row { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 0.5px solid #f0f0f0; font-size: 10.5px; }'
+    + '.info-row .lbl { color: #888; }'
+    + '.info-row .val { color: #111; font-weight: 500; text-align: right; }'
+
+    /* TINT SHADE GRID */
+    + '.shade-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 4px; margin-bottom: 8px; }'
+    + '.shade-box { border: 0.5px solid #ddd; border-radius: 4px; padding: 4px 6px; }'
+    + '.shade-box .s-lbl { font-size: 8px; color: #aaa; }'
+    + '.shade-box .s-val { font-size: 10px; font-weight: 600; color: #111; }'
+
+    /* PRICING TABLE */
+    + '.price-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }'
+    + '.price-table td { padding: 4px 0; border-bottom: 0.5px solid #f0f0f0; font-size: 10.5px; }'
+    + '.price-table td:last-child { text-align: right; font-weight: 600; }'
+    + '.price-table .lbl { color: #888; }'
+    + '.total-row td { border-top: 1.5px solid #b8960f !important; border-bottom: none !important; padding-top: 8px !important; font-size: 13px; font-weight: 700; color: #b8960f; }'
+
+    /* WARRANTY */
+    + '.warranty-box { background: #fafafa; border: 0.5px solid #ddd; border-radius: 4px; padding: 8px 10px; margin: 10px 0; font-size: 8.5px; color: #666; line-height: 1.6; }'
+    + '.warranty-box strong { color: #666; font-weight: normal; }'
+
+    /* SIGNATURE */
+    + '.sig-section { margin-top: 10px; }'
+    + '.sig-box { border: 0.5px solid #ddd; border-radius: 4px; padding: 6px 8px; min-height: 60px; }'
+    + '.sig-box .s-label { font-size: 8px; color: #aaa; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }'
+    + '.sig-img { width: 100%; max-height: 50px; object-fit: contain; }'
+
+    /* FOOTER */
+    + '.footer { margin-top: 12px; padding-top: 8px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }'
+    + '.footer .lic { font-size: 8px; color: #aaa; }'
+    + '.footer .valid { font-size: 8px; font-weight: 700; color: #b8960f; letter-spacing: 1px; }'
+
+    + '@media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }'
+    + '</style></head><body>';
+
+  // Parse card HTML to extract data
+  var tmp = document.createElement('div');
+  tmp.innerHTML = cardHTML;
+  var rows = tmp.querySelectorAll('.q-row');
+  var data = {};
+  rows.forEach(function(r) {
+    var lbl = r.querySelector('.ql'); var val = r.querySelector('.qv,.qp');
+    if (lbl && val) data[lbl.textContent.trim()] = val.textContent.trim();
+  });
+
+  var sigImg = card.querySelector('img') ? card.querySelector('img').src : '';
+
+  html += '<div class="hdr">'
+    + '<div class="hdr-left">'
+    + '<h1>AMERICA <span>TINT</span></h1>'
+    + '<div class="tagline">Premium Window Film · Southern California</div>'
+    + '</div>'
+    + '<div class="hdr-right">'
+    + '<div class="inv-label">Invoice No.</div>'
+    + '<div class="inv-num">' + (data['Invoice'] || '') + '</div>'
+    + '<div class="loc-name">America Tint — ' + loc + '</div>'
+    + '<div class="loc-addr">' + addrLine + '</div>'
+    + '<div class="loc-addr" style="margin-top:2px;color:#b8960f;">www.americatint.com</div>'
+    + '</div>'
+    + '</div>';
+
+  html += '<div class="gold-bar"></div>';
+
+  // Customer + Vehicle info side by side
+  html += '<div class="info-grid">';
+  html += '<div>'
+    + '<div class="sec-title">Customer</div>'
+    + '<div class="info-row"><span class="lbl">Name</span><span class="val">' + (data['Name']||'') + '</span></div>'
+    + '<div class="info-row"><span class="lbl">Phone</span><span class="val">' + (data['Phone']||'') + '</span></div>'
+    + (data['Email'] ? '<div class="info-row"><span class="lbl">Email</span><span class="val">' + data['Email'] + '</span></div>' : '')
+    + '<div class="info-row"><span class="lbl">Date</span><span class="val">' + fmtDate(data['Date']||'') + '</span></div>'
+    + '</div>';
+  html += '<div>'
+    + '<div class="sec-title">Vehicle</div>'
+    + '<div class="info-row"><span class="lbl">Vehicle</span><span class="val">' + (data['Vehicle']||'') + '</span></div>'
+    + '<div class="info-row"><span class="lbl">Film</span><span class="val">' + (data['Film']||'') + '</span></div>'
+    + '<div class="info-row"><span class="lbl">Warranty</span><span class="val">' + (data['Warranty']||'') + '</span></div>'
+    + '</div>';
+  html += '</div>';
+
+  // Tint shades
+  html += '<div class="sec-title">Tint Shades</div>';
+  html += '<div class="shade-grid">';
+  var shadeKeys = ['Front','Rear','F.Windshield','R.Windshield','R.Quarter','Sun Visor','Sunroof'];
+  shadeKeys.forEach(function(k) {
+    if (data[k] && data[k] !== '-') {
+      html += '<div class="shade-box"><div class="s-lbl">' + k + '</div><div class="s-val">' + data[k] + '</div></div>';
+    }
+  });
+  html += '</div>';
+
+  // Pricing
+  html += '<div class="sec-title">Pricing</div>';
+  html += '<table class="price-table">';
+  rows.forEach(function(r) {
+    var lbl = r.querySelector('.ql'); var val = r.querySelector('.qp');
+    if (!lbl || !val) return;
+    var l = lbl.textContent.trim();
+    var skipKeys = ['Invoice','Name','Phone','Email','Date','Vehicle','Film','Front','Rear','F.Windshield','R.Windshield','R.Quarter','Sun Visor','Sunroof','Warranty'];
+    if (skipKeys.indexOf(l) > -1) return;
+    var isTotalRow = (l === 'TOTAL');
+    html += '<tr' + (isTotalRow ? ' class="total-row"' : '') + '>'
+      + '<td class="lbl">' + l + '</td>'
+      + '<td>' + val.textContent.trim() + '</td>'
+      + '</tr>';
+  });
+  html += '</table>';
+
+  // Warranty box
+  html += '<div class="warranty-box">'
+    + '<strong>Terms & Warranty:</strong> By signing, customer acknowledges full responsibility for California DMV regulations on window tinting. '
+    + '<strong>All sales are final.</strong> No refunds for blown speakers, non-working items, or unrelated damage. '
+    + 'Warranty: <strong>Regular Film</strong> — none · <strong>Carbon</strong> — 3-year · <strong>Ceramic/3M</strong> — Lifetime (color fading & bubbling only). '
+    + 'Warranty void without this signed receipt.'
+    + '</div>';
+
+  // Signature
+  html += '<div class="sig-section">';
+  html += '<div class="sig-box"><div class="s-label">Customer Signature</div>'
+    + (sigImg ? '<img class="sig-img" src="' + sigImg + '">' : '<div style="height:40px;"></div>')
+    + '</div>';
+  html += '</div>';
+
+  // Footer
+  html += '<div class="footer">'
+    + '<div class="lic">' + (licLine || 'America Tint Inc.') + '</div>'
+    + '<div class="valid">★ WARRANTY VALID ONLY WITH THIS SIGNED RECEIPT ★</div>'
+    + '</div>';
+
+  html += '</body></html>';
+
+  iframe.contentDocument.open();
+  iframe.contentDocument.write(html);
+  iframe.contentDocument.close();
+
+  iframe.onload = function() {
+    iframe.contentWindow.focus();
+    // 브라우저 헤더/푸터 숨기기: 프린트 대화상자에서 "헤더 및 바닥글" 체크 해제 필요
+    iframe.contentWindow.print();
+  };
+}
+/* ══ WORK ORDER ══ */
+function printWorkOrder() {
+  var card = document.getElementById('confCard');
+  if (!card) return;
+  var loc = document.getElementById('cLocation').value;
+  var addrLine = LOC_ADDRESS[loc] || '';
+
+  function fmtDateWO(d) {
+    if (!d) return '';
+    var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    var parts = d.split('/');
+    if (parts.length === 3) {
+      return months[parseInt(parts[0])-1] + ' ' + parseInt(parts[1]) + ', ' + parts[2];
+    }
+    return d;
+  }
+
+  var tmp = document.createElement('div');
+  tmp.innerHTML = card.innerHTML;
+  var rows = tmp.querySelectorAll('.q-row');
+  var data = {};
+  rows.forEach(function(r) {
+    var lbl = r.querySelector('.ql'); var val = r.querySelector('.qv,.qp');
+    if (lbl && val) data[lbl.textContent.trim()] = val.textContent.trim();
+  });
+
+  // 선택된 창과 색상 정보 수집
+  var windowShades = [];
+  var areas = getAreas();
+  sel.areas.forEach(function(aid) {
+    var a = areas.find(function(x){return x.id === aid;});
+    if (!a) return;
+    var shade = shadeByArea[aid] || '';
+    var label = a.label;
+    if (a.isQty) {
+      // Front Quarter
+      var qs = shadeByArea['qw_qfl'] || shadeByArea['qw_qfr'] || '';
+      windowShades.push({label:'Front Quarter (L+R)', shade:qs});
+    } else {
+      windowShades.push({label:label, shade:shade});
+    }
+  });
+
+  var old = document.getElementById('woFrame');
+  if (old) old.parentNode.removeChild(old);
+  var iframe = document.createElement('iframe');
+  iframe.id = 'woFrame';
+  iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:900px;height:1200px;border:none;';
+  document.body.appendChild(iframe);
+
+  var shadeBoxes = windowShades.map(function(w) {
+    var hasShade = w.shade && w.shade !== '';
+    return '<div class="shade-box' + (hasShade ? ' has-shade' : '') + '">' +
+      '<div class="shade-label">' + w.label + '</div>' +
+      '<div class="shade-val">' + (hasShade ? w.shade : 'STD') + '</div>' +
+      '</div>';
+  }).join('');
+
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Work Order</title><style>'
+    + '@page { size: letter; margin: 10mm 12mm; }'
+    + '* { box-sizing: border-box; margin: 0; padding: 0; }'
+    + 'body { font-family: Arial Black, Arial, sans-serif; color: #000; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }'
+
+    // HEADER
+    + '.hdr { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 5px solid #000; margin-bottom: 12px; }'
+    + '.hdr-title { font-size: 36px; font-weight: 900; letter-spacing: 2px; line-height: 1; }'
+    + '.hdr-title span { color: #b8960f; }'
+    + '.hdr-right { text-align: right; }'
+    + '.inv { font-size: 26px; font-weight: 900; color: #b8960f; line-height: 1; }'
+    + '.loc { font-size: 14px; font-weight: 700; margin-top: 4px; }'
+    + '.date { font-size: 13px; color: #555; margin-top: 2px; font-family: Arial; font-weight: normal; }'
+
+    // HERO: Vehicle + Film (가장 크게)
+    + '.hero { background: #000; color: #fff; border-radius: 8px; padding: 18px 24px; margin-bottom: 14px; }'
+    + '.hero-vehicle { font-size: 44px; font-weight: 900; letter-spacing: 1px; line-height: 1.1; margin-bottom: 6px; }'
+    + '.hero-film { font-size: 24px; font-weight: 900; color: #e8c94a; letter-spacing: 1px; line-height: 1; }'
+    + '.hero-warranty { font-size: 12px; color: #aaa; margin-top: 6px; font-family: Arial; font-weight: normal; }'
+
+    // SHADE SECTION (핵심)
+    + '.shade-section { margin-bottom: 14px; }'
+    + '.sec-label { font-size: 14px; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; color: #000; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 3px solid #b8960f; display: flex; align-items: center; gap: 10px; }'
+    + '.sec-label::before { content: "▶"; color: #b8960f; }'
+    + '.shade-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }'
+    + '.shade-box { border: 3px solid #ccc; border-radius: 8px; padding: 14px 10px; text-align: center; background: #fafafa; }'
+    + '.shade-box.has-shade { border-color: #000; background: #fff7dc; }'
+    + '.shade-label { font-size: 11px; font-weight: 900; text-transform: uppercase; color: #555; margin-bottom: 6px; letter-spacing: 1px; }'
+    + '.shade-box.has-shade .shade-label { color: #000; }'
+    + '.shade-val { font-size: 52px; font-weight: 900; color: #ccc; line-height: 1; }'
+    + '.shade-box.has-shade .shade-val { color: #b8960f; }'
+
+    // CUSTOMER (작게)
+    + '.cust-row { display: flex; gap: 12px; margin-bottom: 12px; font-size: 13px; }'
+    + '.cust-box { border: 1.5px solid #ccc; border-radius: 6px; padding: 8px 14px; flex: 1; }'
+    + '.cust-lbl { font-size: 9px; font-weight: 900; color: #888; text-transform: uppercase; letter-spacing: 1.5px; font-family: Arial; }'
+    + '.cust-val { font-size: 15px; font-weight: 700; margin-top: 2px; }'
+
+    // NOTES (크게)
+    + '.notes-box { border: 3px dashed #b8960f; border-radius: 8px; padding: 12px 16px; min-height: 100px; margin-bottom: 12px; background: #fffbef; }'
+    + '.notes-title { font-size: 12px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: #b8960f; margin-bottom: 8px; }'
+
+    // FOOTER
+    + '.footer { display: flex; justify-content: space-between; align-items: flex-end; border-top: 2px solid #000; padding-top: 6px; font-size: 10px; color: #555; font-family: Arial; font-weight: normal; }'
+    + '.sig-line { min-width: 200px; border-bottom: 1px solid #000; padding-bottom: 2px; text-align: center; font-weight: 700; }'
+    + '@media print { body { padding: 0; } }'
+    + '</style></head><body>';
+
+  html += '<div class="hdr">'
+    + '<div class="hdr-title">WORK <span>ORDER</span></div>'
+    + '<div class="hdr-right">'
+    + '<div class="inv">' + (data['Invoice'] || '') + '</div>'
+    + '<div class="loc">America Tint — ' + loc + '</div>'
+    + '<div class="date">' + fmtDateWO(data['Date'] || '') + '</div>'
+    + '</div>'
+    + '</div>';
+
+  // HERO - Vehicle + Film
+  html += '<div class="hero">'
+    + '<div class="hero-vehicle">' + (data['Vehicle'] || '') + '</div>'
+    + '<div class="hero-film">★ ' + (data['Film'] || '') + '</div>'
+    + '<div class="hero-warranty">Warranty: ' + (data['Warranty'] || '') + '</div>'
+    + '</div>';
+
+  // SHADE SECTION (핵심)
+  if (shadeBoxes) {
+    html += '<div class="shade-section">'
+      + '<div class="sec-label">Window Shades</div>'
+      + '<div class="shade-grid">' + shadeBoxes + '</div>'
+      + '</div>';
+  }
+
+  // Customer (작게)
+  html += '<div class="cust-row">'
+    + '<div class="cust-box"><div class="cust-lbl">Customer</div><div class="cust-val">' + (data['Name'] || '') + '</div></div>'
+    + '<div class="cust-box"><div class="cust-lbl">Phone</div><div class="cust-val">' + (data['Phone'] || '') + '</div></div>'
+    + '</div>';
+
+  // Notes
+  html += '<div class="notes-box">'
+    + '<div class="notes-title">✏ Notes / Special Instructions</div>'
+    + '</div>';
+
+  // Footer
+  html += '<div class="footer">'
+    + '<div>America Tint — ' + loc + '<br>' + addrLine + '</div>'
+    + '<div class="sig-line">Staff Signature</div>'
+    + '</div>';
+
+  html += '</body></html>';
+
+  iframe.contentDocument.open();
+  iframe.contentDocument.write(html);
+  iframe.contentDocument.close();
+
+  iframe.onload = function() {
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+  };
+}
+
+
+function checkForm() {
+  const ok = document.getElementById('cLocation').value &&
+             document.getElementById('cName').value.trim() &&
+             document.getElementById('cPhone').value.trim() &&
+             document.getElementById('cDate').value &&
+             document.getElementById('cYear').value &&
+             document.getElementById('cMake').value &&
+             getModelValue();
+  document.getElementById('btn0').disabled = !ok;
+}
+
+/* ══ RENDER STEP 1 ══ */
+function renderStep1() {
+  document.getElementById('vehGrid').innerHTML = VEHICLES.map(v =>
+    `<div class="veh-card${sel.vehicle===v.id?' selected':''}" onclick="selVeh('${v.id}')">
+      <div class="veh-icon">${v.icon}</div>
+      <div class="veh-name">${v.label}</div>
+      <div class="veh-sub">${v.sub}</div>
+    </div>`).join('');
+  const tm_el = document.getElementById('teslaModels');
+  tm_el.innerHTML = TESLA_MODELS.map(m =>
+    `<div class="tm-card${sel.teslaModel===m.id?' selected':''}" onclick="selTM('${m.id}')">
+      <div class="tm-num">${m.short}</div>
+      <div class="tm-name">${m.label}</div>
+    </div>`).join('');
+  tm_el.classList.toggle('show', sel.vehicle === 'tesla');
+  document.getElementById('filmRow').innerHTML = FILMS.map(f => {
+    const disabled = isTesla() && !f.forTesla;
+    return `<div class="film-card${sel.film===f.id?' selected':''}${disabled?' disabled':''}" onclick="${disabled?'':'selFilm(\''+f.id+'\')'}">
+      <div class="film-name">${f.name}</div>
+      <div class="film-sub">${f.sub}</div>
+      <div class="film-warranty">${f.warranty}</div>
+    </div>`;
+  }).join('');
+  checkBtn1();
+}
+
+function checkBtn1() {
+  const ok = sel.vehicle && sel.film && (!isTesla() || sel.teslaModel);
+  var b = document.getElementById('btn1');
+  if (b) b.disabled = !ok;
+}
+
+function selVeh(id) {
+  var prevAreas = sel.areas.slice();
+  sel.vehicle = id; sel.teslaModel = null; sel.film = null; sel.qty = 0; sel.activeQW = [];
+  sel.areas = prevAreas; // 기존 선택 유지
+  renderStep1();
+  calcTotal();
+}
+function selTM(id) {
+  sel.teslaModel = id; sel.film = null; sel.areas = []; sel.qty = 0; sel.activeQW = [];
+  renderStep1();
+}
+function selFilm(id) {
+  var prevAreas = sel.areas.slice();
+  sel.film = id;
+  sel.qty = 0; sel.activeQW = [];
+  sel.areas = prevAreas; // 기존 선택 유지
+  if (sel.areas.length === 0 && Object.values(sel.tint).some(function(v){return v;})) {
+    sel.areas = ['all'];
+  }
+  renderStep1();
+  calcTotal();
+}
+
+/* ══ RENDER STEP 2 ══ */
+function renderStep2() {
+  const areas = getAreas();
+  const ceramicFilms = ['m2','ir3m','crystalline','remove'];
+  document.getElementById('infoBanner').textContent =
+    isTesla() ? 'Tap a window on the diagram or select below.' :
+    'Tap a window or select below. Front windshield requires M2 Ceramic or above.';
+  document.getElementById('carDiagramWrap').innerHTML = getCarSVG();
+  let total = 0;
+  document.getElementById('areaList').style.display='block';
+  document.getElementById('areaList').innerHTML = areas.map(a => {
+    const p = gp(a.pk);
+    const needsCeramic = a.needsCeramic && !ceramicFilms.includes(sel.film);
+    const disabled = needsCeramic || p === null;
+    const checked = sel.areas.includes(a.id);
+    let note = a.note;
+    if (needsCeramic) note = '⚠ M2 Ceramic or above required';
+    if (!needsCeramic && p === null) note = 'N/A';
+    if (a.isQty) {
+      if (disabled) return `<div class="area-row disabled"><div class="area-left"><div class="area-check"></div><div><div class="area-name">${a.label}</div><div class="area-note">${note}</div></div></div><div class="area-price na">N/A</div></div>`;
+      const aqw = sel.activeQW || [];
+      const isRm = sel.film === 'remove';
+      const qLabels = isRm ? ['FL','FR','RL','RR'] : ['FL','FR'];
+      const qIds = isRm ? ['qfl','qfr','qrl','qrr'] : ['qfl','qfr'];
+      const qBtns = qIds.map((qid, i) => {
+        const on = aqw.includes(qid);
+        return `<button onclick="clickQuarter('${qid}')" style="padding:8px 14px;font-size:13px;font-weight:700;background:${on?'#c8a535':'#1a1a18'};color:${on?'#0a0a08':'#7a7870'};border:1px solid ${on?'#c8a535':'#2e2e2a'};border-radius:6px;cursor:pointer;min-width:44px;">${qLabels[i]}</button>`;
+      }).join('');
+      const activeCount = aqw.filter(x => qIds.includes(x)).length;
+      return `<div class="area-row${activeCount>0?' selected':''}"><div class="area-left"><div class="area-check">${activeCount>0?'✓':''}</div><div><div class="area-name">${a.label}${isRm?'':' (Front Only)'} ${activeCount>0?'('+activeCount+')':''}</div><div class="area-note">Tap each window · $${p}/ea</div></div></div><div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">${qBtns}</div></div>`;
+    }
+    var shade = shadeByArea[a.id];
+    var shadeLabel = shade ? ' · '+shade : '';
+    var isIncluded = sel.standardPackage && a.id === '2front';
+    var priceDisplay = isIncluded ? 'INCLUDED' : (p!==null?'$'+p.toLocaleString():'N/A');
+    var priceClass = isIncluded ? 'area-price na' : (p===null?'area-price na':'area-price');
+    return `<button type="button" class="area-row${checked?' selected':''}${disabled?' disabled':''}" ${disabled?'disabled':'onclick="openShadePopup(\''+a.id+'\')"'} style="width:100%;text-align:left;border-radius:8px;touch-action:manipulation;">
+      <div class="area-left"><div class="area-check">${checked?'✓':''}</div><div><div class="area-name">${a.label}${shadeLabel}</div><div class="area-note">${isIncluded?'Included in Standard Package':note}</div></div></div>
+      <div class="${priceClass}">${priceDisplay}</div>
+    </button>`;
+  }).join('');
+  sel.areas.forEach(aid => {
+    const a = areas.find(x => x.id === aid);
+    if (!a) return;
+    if (sel.standardPackage && aid === '2front') return;
+    const p = gp(a.pk);
+    if (p === null) return;
+    total += a.isQty ? p * (sel.qty||0) : p;
+  });
+  var taxRate = getTaxRate();
+  var tax = Math.round(total * taxRate * 100) / 100;
+  var grandTotal = total + tax;
+  const taxPct = (taxRate * 100).toFixed(2) + '%';
+  document.getElementById('subAmt').textContent = '$' + total.toLocaleString();
+  document.getElementById('taxAmt').textContent = '$' + tax.toLocaleString();
+  document.getElementById('totalAmt').textContent = '$' + grandTotal.toLocaleString();
+  const taxLbl = document.getElementById('taxLabel');
+  if (taxLbl) taxLbl.textContent = 'Sales Tax (' + taxPct + ')';
+}
+
+function toggleArea(id) {
+  const areas = getAreas();
+  const a = areas.find(x => x.id === id);
+  if (!a) return;
+  const ceramicFilms = ['m2','ir3m','crystalline','remove'];
+  if (a.needsCeramic && !ceramicFilms.includes(sel.film)) return;
+  if (gp(a.pk) === null) return;
+  if (sel.areas.includes(id)) sel.areas = sel.areas.filter(x => x !== id);
+  else sel.areas.push(id);
+  renderStep2();
+}
+
+/* ══ CONFIRM ══ */
+function doConfirm() {
+  const areas = getAreas();
+  const film = FILMS.find(f => f.id === sel.film);
+  const vLabel = sel.vehicle === 'tesla' ?
+    ('Tesla ' + (TESLA_MODELS.find(m => m.id === sel.teslaModel)?.label || '')) :
+    (VEHICLES.find(v => v.id === sel.vehicle)?.label || '');
+  let total = 0, rows = '';
+  sel.areas.forEach(aid => {
+    const a = areas.find(x => x.id === aid);
+    if (!a) return;
+    const p = gp(a.pk);
+    if (p === null) return;
+    // Standard Package: Front 2 Doors는 All Side & Back에 포함 (가격 중복 방지)
+    if (sel.standardPackage && aid === '2front') {
+      rows += `<div class="q-row"><span class="ql">${a.label}</span><span class="qv" style="color:var(--gray);">INCLUDED</span></div>`;
+      return;
+    }
+    const lt = a.isQty ? p*(sel.qty||0) : p;
+    const lbl = a.isQty ? `${a.label} × ${sel.qty}` : a.label;
+    total += lt;
+    rows += `<div class="q-row"><span class="ql">${lbl}</span><span class="qp">$${lt.toLocaleString()}</span></div>`;
+  });
+  const invoiceNum = document.getElementById('invoiceNum').textContent || updateInvoiceNum();
+  const sigCanvas = document.getElementById('sigCanvas');
+  const sigImage = sigCanvas ? sigCanvas.toDataURL('image/png') : '';
+  const cName  = document.getElementById('cName').value.trim();
+  const cPhone = document.getElementById('cPhone').value.trim();
+  const cEmail = document.getElementById('cEmail').value.trim();
+  const cDate  = document.getElementById('cDate').value;
+  const cYear  = document.getElementById('cYear').value;
+  const cMake  = document.getElementById('cMake').value;
+  const cModel = getModelValue();
+  const cTrim  = document.getElementById('cTrim').value.trim();
+  const loc = document.getElementById('cLocation').value;
+  const taxRate = TAX_RATES[loc] || 0.0975;
+  const taxAmt = Math.round(total * taxRate * 100) / 100;
+  const cardAmt = parseFloat(document.getElementById('cardAmt')?.value)||0;
+  const cashAmt = parseFloat(document.getElementById('cashAmt')?.value)||0;
+  const noteEl = document.getElementById('noteAmt');
+  const noteAmt = noteEl ? Math.max(0, parseFloat(noteEl.value)||0) : 0;
+  const grandTotal = Math.max(0, Math.round((total + taxAmt - noteAmt) * 100) / 100);
+  document.getElementById('confSub').textContent = `${loc} · ${vLabel} · ${film?.name} · $${grandTotal.toLocaleString()}`;
+  document.getElementById('confCard').innerHTML = `
+    <div class="q-row"><span class="ql">Invoice</span><span class="qv" style="color:var(--gold);font-weight:700;">${invoiceNum}</span></div>
+    <div class="q-row"><span class="ql">Name</span><span class="qv">${cName}</span></div>
+    <div class="q-row"><span class="ql">Phone</span><span class="qv">${cPhone}</span></div>
+    ${cEmail?`<div class="q-row"><span class="ql">Email</span><span class="qv">${cEmail}</span></div>`:''}
+    <div class="q-row"><span class="ql">Date</span><span class="qv">${cDate}</span></div>
+    <div class="q-row"><span class="ql">Vehicle</span><span class="qv">${cYear} ${cMake} ${cModel}${cTrim?' '+cTrim:''}</span></div>
+    <div class="q-row"><span class="ql">Film</span><span class="qv">${film?.name} — ${film?.sub}</span></div>
+    <div class="q-row"><span class="ql">All Side &amp; Back</span><span class="qv" style="color:${shadeByArea['all']?'var(--gold)':'var(--gray)'};">${shadeByArea['all']||"-"}</span></div>
+    <div class="q-row"><span class="ql">Front 2 Doors</span><span class="qv" style="color:${shadeByArea['2front']?'var(--gold)':'var(--gray)'};">${shadeByArea['2front']||"-"}</span></div>
+    <div class="q-row"><span class="ql">Front Quarter (L/R)</span><span class="qv" style="color:${(shadeByArea['qw_qfl']||shadeByArea['qw_qfr'])?'var(--gold)':'var(--gray)'};">${shadeByArea['qw_qfl']||shadeByArea['qw_qfr']||"-"}</span></div>
+    <div class="q-row"><span class="ql">Front Windshield</span><span class="qv" style="color:${shadeByArea['fwind']?'var(--gold)':'var(--gray)'};">${shadeByArea['fwind']||"-"}</span></div>
+    <div class="q-row"><span class="ql">Rear Windshield</span><span class="qv" style="color:${shadeByArea['rearwind']?'var(--gold)':'var(--gray)'};">${shadeByArea['rearwind']||"-"}</span></div>
+    <div class="q-row"><span class="ql">Sun Visor</span><span class="qv" style="color:${shadeByArea['sunvisor']?'var(--gold)':'var(--gray)'};">${shadeByArea['sunvisor']||"-"}</span></div>
+    <div class="q-row"><span class="ql">Sunroof</span><span class="qv" style="color:${shadeByArea['sunroof']?'var(--gold)':'var(--gray)'};">${shadeByArea['sunroof']||"-"}</span></div>
+    <div class="q-row"><span class="ql">Warranty</span><span class="qv">${film?.warranty}</span></div>
+    ${rows}
+    <div class="q-row" style="border-top:1px solid rgba(200,165,53,0.15);">
+      <span class="ql" style="color:var(--gray-lt);">Subtotal</span>
+      <span class="qp">$${total.toLocaleString()}</span>
+    </div>
+    <div class="q-row">
+      <span class="ql" style="color:var(--gray-lt);">Sales Tax (${(taxRate*100).toFixed(2)}%)</span>
+      <span class="qp">$${taxAmt.toLocaleString()}</span>
+    </div>
+    <div class="q-row" style="border-top:1px solid rgba(200,165,53,0.3);">
+      <span class="ql" style="color:var(--white);font-weight:600;">TOTAL</span>
+      <span class="qp" style="font-size:20px;">$${grandTotal.toLocaleString()}</span>
+    </div>
+    <div style="padding:14px 20px;border-top:1px solid rgba(200,165,53,0.1);font-size:9px;color:var(--gray);line-height:1.6;">
+      By signing, I acknowledge full responsibility for any action taken by the State of California Motor Vehicle Department regarding window tinting. All sales are final. Warranty covers color fading &amp; bubbling only (Regular: none, Carbon: 3yr, Ceramic/3M: Lifetime). Warranty void without this signed receipt.
+    </div>
+    <div style="padding:8px 20px;font-size:9px;color:var(--gray);border-top:1px solid rgba(200,165,53,0.1);">
+      ${BIZ_LICENSE[loc] ? BIZ_LICENSE[loc] + ' &nbsp;|&nbsp; ' : ''}America Tint Inc.
+    </div>
+    ${sigImage ? '<div style="padding:8px 20px 14px;border-top:1px solid rgba(200,165,53,0.1);"><div style="font-size:10px;color:var(--gray);margin-bottom:4px;">Customer Signature</div><img src="' + sigImage + '" style="width:100%;max-height:80px;object-fit:contain;background:#0d0d0c;border-radius:4px;" /></div>' : ''}
+    ${noteAmt>0?'<div class="q-row"><span class="ql" style="color:var(--gray-lt);">Note</span><span class="qp" style="color:#a8a49a;">-$'+noteAmt.toLocaleString()+'</span></div>':''}`;
+  // 구글 시트 저장
+  const payload = {
+    invoice: invoiceNum,
+    location: document.getElementById('cLocation').value,
+    date: cDate, time: document.getElementById('cTime').value,
+    name: cName, phone: cPhone, email: cEmail,
+    year: cYear, make: cMake, model: cModel, trim: cTrim,
+    vehicle: vLabel, film: film?.name,
+    windows: sel.areas.join(', '),
+    shade_all: shadeByArea['all']||'',
+    shade_2front: shadeByArea['2front']||'',
+    shade_fwind: shadeByArea['fwind']||'',
+    shade_rearwind: shadeByArea['rearwind']||'',
+    shade_sunvisor: shadeByArea['sunvisor']||'',
+    shade_sunroof: shadeByArea['sunroof']||'',
+    shade_front_quarter: shadeByArea['qw_qfl']||shadeByArea['qw_qfr']||'',
+    tint_front: sel.tint.front||'',
+    tint_frontQuarter: sel.tint.frontQuarter||'',
+    tint_rear: sel.tint.rear||'',
+    tint_frontWind: sel.tint.frontWind||'',
+    tint_rearWind: sel.tint.rearWind||'',
+    tint_rearQuarter: sel.tint.rearQuarter||'',
+    tint_sunvisor: sel.tint.sunvisor||'',
+    tint_sunroof: sel.tint.sunroof||'',
+    card: cardAmt,
+    cash: cashAmt,
+    note: noteAmt,
+    subtotal: total,
+    tax: taxAmt,
+    taxRate: (taxRate*100).toFixed(2)+'%',
+    total: grandTotal
+  };
+  fetch('https://script.google.com/macros/s/AKfycbyj_AMsJktAybRAU_jRoKmQIpUMTBpDMCJFaWrHq-efkk2yCHB7PZHyRTs2cUJnr4HZ/exec', {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload)
+  }).catch(err => console.log('Sheet save error:', err));
+
+  goStep(2);
+}
+
+/* ══ NAVIGATION ══ */
+const PROG_LABELS = ['Customer Info','Vehicle, Film & Windows'];
+function updateProg(cur) {
+  document.getElementById('prog').innerHTML = PROG_LABELS.map((l,i) => {
+    const n = i+1;
+    const cls = n < cur ? 'done' : n === cur ? 'active' : '';
+    return `<div class="prog-item ${cls}">${n < cur ? '✓ ' : ''}${l}</div>`;
+  }).join('');
+  document.getElementById('stepInd').textContent = cur <= 3 ? `Step ${cur} of 3` : 'Complete';
+}
+
+function goStep(n) {
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  const ids = { 0:'step0', 1:'step1', 2:'step2' };
+  document.getElementById(ids[n] || 'step0').classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if (n === 1) renderStep2();
+  updateProg(n);
+  if (n === 2) document.getElementById('stepInd').textContent = 'Complete';
+}
+
+function resetAll() {
+  sel = { vehicle:null, teslaModel:null, film:null, areas:[], qty:0, activeQW:[], standardPackage:false, tint:{front:null, rear:null, frontWind:null, rearWind:null, frontQuarter:null, rearQuarter:null, sunvisor:null, sunroof:null} };
+  shadeByArea = {};
+  currentShadeTarget = null;
+  ['cName','cPhone','cEmail','cTrim','cLocation','cardAmt','cashAmt','noteAmt'].forEach(id => { var el=document.getElementById(id); if(el) el.value=(id==='noteAmt'||id==='cardAmt'||id==='cashAmt')?'0':''; });
+  var invEl = document.getElementById('invoiceNum'); if(invEl) invEl.textContent = '';
+  // 지점 버튼 스타일 리셋
+  ['loc_wc','loc_ch','loc_ir','loc_fl'].forEach(function(id){
+    var b = document.getElementById(id);
+    if (b) { b.style.background='var(--card)'; b.style.borderColor='var(--border)'; b.style.color='var(--gray-lt)'; }
+  });
+  document.getElementById('cYear').value = new Date().getFullYear();
+  document.getElementById('cMake').value = '';
+  document.getElementById('cModel').value = '';
+  var _ms=document.getElementById('cMakeSelect');if(_ms)_ms.value='';
+  var _md=document.getElementById('cModelSelect');if(_md){_md.innerHTML='<option value="">Select Make First</option>';_md.disabled=true;}
+  var mdBtn = document.getElementById('makeDisplay');
+  if (mdBtn) { mdBtn.textContent='Select Make ▼'; mdBtn.style.color='var(--gray)'; }
+  document.getElementById('makeGrid').style.display = 'none';
+  var mdlBtn = document.getElementById('modelDisplay');
+  if (mdlBtn) { mdlBtn.textContent='Select Make First'; mdlBtn.style.color='var(--gray)'; }
+  document.getElementById('modelGrid').style.display = 'none';
+  // Make 버튼 선택 해제
+  document.querySelectorAll('#makeGrid .vbtn').forEach(function(b){ b.classList.remove('selected'); });
+  // 팝업 닫기
+  var tp = document.getElementById('tintPopup'); if(tp) tp.style.display='none';
+  var to = document.getElementById('tintOverlay'); if(to) to.style.display='none';
+  setDateTime();
+  clearSig();
+  renderStep1();
+  checkForm();
+  goStep(0);
+}
+
+/* ══ SIGNATURE ══ */
+function initSig() {
+  const canvas = document.getElementById('sigCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  ctx.strokeStyle = '#c8a535';
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round';
+  function getPos(e) {
+    const r = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / r.width;
+    const scaleY = canvas.height / r.height;
+    const src = e.touches ? e.touches[0] : e;
+    return { x: (src.clientX - r.left) * scaleX, y: (src.clientY - r.top) * scaleY };
+  }
+  function start(e) { e.preventDefault(); drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }
+  function move(e) { e.preventDefault(); if (!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); }
+  function end() { drawing = false; }
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', move);
+  canvas.addEventListener('mouseup', end);
+  canvas.addEventListener('touchstart', start, {passive:false});
+  canvas.addEventListener('touchmove', move, {passive:false});
+  canvas.addEventListener('touchend', end);
+}
+function clearSig() {
+  const canvas = document.getElementById('sigCanvas');
+  if (!canvas) return;
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+}
+
+/* ══ DATE/TIME ══ */
+function setDateTime() {
+  var now = new Date();
+  var el = document.getElementById('cDate');
+  if (el) {
+    var m = String(now.getMonth()+1).padStart(2,'0');
+    var d = String(now.getDate()).padStart(2,'0');
+    var y = now.getFullYear();
+    el.value = m + '/' + d + '/' + y;
+  }
+  var te = document.getElementById('cTime');
+  if (te) {
+    var hh = now.getHours(), mn = now.getMinutes();
+    var ap = hh >= 12 ? 'PM' : 'AM';
+    hh = hh % 12 || 12;
+    te.value = String(hh).padStart(2,'0') + ':' + String(mn).padStart(2,'0') + ' ' + ap;
+  }
+}
+
+
+/* ══ CAR DIAGRAM HEIGHT ══ */
+function setCarHeight() {
+  var wrap = document.getElementById('carDiagramWrap');
+  if (!wrap) return;
+  
+  
+  
+}
+window.addEventListener('resize', setCarHeight);
+window.addEventListener('orientationchange', setCarHeight);
+setCarHeight();
+
+/* ══ INIT ══ */
+setDateTime();
+setInterval(setDateTime, 60000);
+checkForm();
+initSig();
+renderStep1();
+updateProg(0);
+</script>
+</body>
+</html>
 <!DOCTYPE html><html><body>placeholder</body></html>
